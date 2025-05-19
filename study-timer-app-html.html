@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习计时管理系统</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="js/shared.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            min-height: 100vh; /* 改为最小高度 */
+            overflow-y: auto; /* 允许页面垂直滚动 */
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            flex: 1;
+            overflow-y: auto; /* 允许容器垂直滚动 */
+        }
+        .main-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            flex: 1;
+            overflow-y: auto; /* 允许主面板垂直滚动 */
+        }
+        .start-panel {
+            flex: 1;
+            min-width: 350px;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto; /* 允许面板垂直滚动 */
+        }
+        .stats-panel {
+            flex: 2;
+            min-width: 400px;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            overflow: auto; /* 允许统计面板滚动 */
+        }
+        .timer-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 0;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 30px 0;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 300px;
+        }
+        .timer-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .timer-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .timer-btn.continue {
+            background-color: #FF9800;
+        }
+        .button-container {
+            width: 100%;
+            max-width: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .export-btn, .import-label {
+            width: 100%;
+            padding: 10px 0;
+            text-align: center;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            border: none;
+        }
+        .export-btn {
+            background-color: #607D8B;
+            color: white;
+        }
+        .export-btn:hover, .import-label:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .import-container {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .import-container input {
+            display: none;
+        }
+        .import-label {
+            background-color: #795548;
+            color: white;
+            display: block;
+        }
+        .tag-selection {
+            margin: 10px 0 20px 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .tag-selection h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: 600;
+        }
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+            width: 100%;
+        }
+        .tag {
+            padding: 5px 15px;
+            background-color: #E0E0E0;
+            border-radius: 20px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .tag.selected {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transform: scale(1.05);
+        }
+        .tag .delete-tag {
+            display: none;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #F44336;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 12px;
+            line-height: 18px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .tag:hover .delete-tag {
+            display: block;
+        }
+        .current-tag {
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-radius: 5px;
+            font-weight: bold;
+            border-left: 4px solid #4CAF50;
+        }
+        .current-tag span {
+            color: #2196F3;
+        }
+        .stats-container {
+            margin-top: 20px;
+        }
+        .stats-date {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .stats-date input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .charts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .charts-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+        .chart-block {
+            flex: 1;
+            min-width: 300px;
+        }
+        .pie-chart, .bar-chart {
+            height: 280px;
+        }
+        .records-list {
+            margin-top: 20px;
+            height: 280px; /* 固定高度 */
+            overflow-y: auto; /* 允许记录滚动 */
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            background-color: #fafafa;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.05);
+        }
+        .records-list h3 {
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4CAF50;
+            color: #333;
+            text-align: left;
+        }
+        .record-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            background-color: white;
+        }
+        .record-info {
+            display: flex;
+            align-items: center;
+            min-width: 0; /* 允许内容收缩 */
+            flex: 1;
+            margin-right: 15px; /* 与时长之间的间距 */
+        }
+        .record-tag {
+            background-color: #2196F3;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-right: 12px;
+            min-width: 60px;
+            text-align: center;
+            flex-shrink: 0; /* 防止标签缩小 */
+        }
+        .record-time {
+            color: #555;
+            font-size: 0.9rem;
+            border-left: 2px solid #FFC107;
+            padding-left: 8px;
+            font-weight: 500;
+            white-space: nowrap; /* 防止时间换行 */
+        }
+        .record-duration {
+            background-color: #e8f5e9;
+            color: #388E3C;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            min-width: 60px;
+            text-align: center;
+            flex-shrink: 0; /* 防止时长缩小 */
+        }
+        .no-records {
+            color: #9e9e9e;
+            text-align: center;
+            padding: 20px 0;
+            font-style: italic;
+            background-color: white;
+            border-radius: 5px;
+        }
+        .tag-input {
+            display: flex;
+            margin-top: 15px;
+            width: 100%;
+            max-width: 300px;
+        }
+        .tag-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px 0 0 25px;
+            font-size: 1rem;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            outline: none;
+        }
+        .tag-input input:focus {
+            border-color: #2196F3;
+            box-shadow: inset 0 1px 5px rgba(33,150,243,0.2);
+        }
+        .tag-input button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 0 25px 25px 0;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .tag-input button:hover {
+            background-color: #1976D2;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .total-time-badge {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+            font-weight: normal;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="main-panel">
+            <div class="start-panel">
+                <div class="tag-selection">
+                    <h3>选择学习标签</h3>
+                    <div class="tag-list" id="tagList">
+                        <!-- 标签将通过JavaScript动态加载 -->
+                    </div>
+                    
+                    <div class="tag-input">
+                        <input type="text" id="newTagInput" placeholder="输入新标签">
+                        <button id="addTagBtn">添加</button>
+                    </div>
+                </div>
+                
+                <div class="current-tag" id="currentTagDisplay">
+                    当前选中标签: <span id="currentTagName">无</span>
+                </div>
+                
+                <div class="button-container">
+                    <button class="timer-btn" id="timerBtn" disabled>开始学习计时</button>
+                </div>
+                
+                <div class="records-list" id="todayRecords">
+                    <h3>今日记录</h3>
+                    <!-- 记录会动态添加 -->
+                </div>
+                
+                <button class="export-btn" id="exportBtn">导出所有记录</button>
+                
+                <div class="import-container">
+                    <label class="import-label" for="importFile">导入记录</label>
+                    <input type="file" id="importFile" accept=".json">
+                </div>
+            </div>
+            
+            <div class="stats-panel">
+                <h2>学习统计</h2>
+                
+                <div class="stats-date">
+                    <input type="date" id="statsDate">
+                </div>
+                
+                <div class="charts-container">
+                    <div class="charts-row">
+                        <div class="chart-block">
+                            <h3>总学习时间分布</h3>
+                            <div class="pie-chart" id="pieChart"></div>
+                        </div>
+                        
+                        <div class="chart-block">
+                            <h3>今日时间占比 <span id="todayTotalTime" class="total-time-badge">0小时</span></h3>
+                            <div class="pie-chart" id="dayPercentChart"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3>每日学习时长</h3>
+                        <div class="bar-chart" id="barChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // DOM 元素
+        const tagList = document.getElementById('tagList');
+        const newTagInput = document.getElementById('newTagInput');
+        const addTagBtn = document.getElementById('addTagBtn');
+        const todayRecords = document.getElementById('todayRecords');
+        const statsDate = document.getElementById('statsDate');
+        const currentTagDisplay = document.getElementById('currentTagDisplay');
+        const currentTagName = document.getElementById('currentTagName');
+        const exportBtn = document.getElementById('exportBtn');
+        const importFile = document.getElementById('importFile');
+        const timerBtn = document.getElementById('timerBtn');
+        
+        // 变量
+        let selectedTag = null;
+        let pieChart = null;
+        let barChart = null;
+        let dayPercentChart = null; // 添加全局变量
+        
+        // 初始化日期选择器为今天
+        const today = new Date();
+        statsDate.valueAsDate = today;
+        
+        // 加载标签
+        function loadTagsUI() {
+            // 清空标签列表
+            tagList.innerHTML = '';
+            
+            // 加载标签
+            const tags = loadTags();
+            
+            // 创建标签元素
+            tags.forEach(tag => {
+                addTagElement(tag);
+            });
+            
+            // 恢复选中状态
+            const savedTag = getSelectedTag();
+            if (savedTag) {
+                selectedTag = savedTag;
+                currentTagName.textContent = savedTag;
+                
+                // 找到对应标签元素并添加选中样式
+                document.querySelectorAll('.tag').forEach(tagElement => {
+                    if (tagElement.getAttribute('data-tag') === savedTag) {
+                        tagElement.classList.add('selected');
+                    }
+                });
+                
+                // 启用开始按钮
+                timerBtn.disabled = false;
+            }
+        }
+        
+        // 添加标签元素
+        function addTagElement(tag) {
+            const tagElement = document.createElement('div');
+            tagElement.classList.add('tag');
+            tagElement.setAttribute('data-tag', tag);
+            tagElement.textContent = tag;
+            
+            // 添加删除按钮
+            const deleteBtn = document.createElement('span');
+            deleteBtn.classList.add('delete-tag');
+            deleteBtn.textContent = '×';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                
+                // 如果正在删除选中的标签，清除选中状态
+                if (selectedTag === tag) {
+                    selectedTag = null;
+                    currentTagName.textContent = '无';
+                    saveSelectedTag('');
+                    timerBtn.disabled = true;
+                }
+                
+                tagElement.remove();
+                
+                // 更新localStorage
+                updateTags();
+            };
+            
+            tagElement.appendChild(deleteBtn);
+            tagList.appendChild(tagElement);
+        }
+        
+        // 更新标签到localStorage
+        function updateTags() {
+            const tags = [];
+            document.querySelectorAll('.tag').forEach(tagElement => {
+                tags.push(tagElement.getAttribute('data-tag'));
+            });
+            saveTags(tags);
+        }
+        
+        // 标签选择处理
+        tagList.addEventListener('click', (event) => {
+            if (event.target.classList.contains('tag')) {
+                // 移除所有标签的选中状态
+                document.querySelectorAll('.tag').forEach(tag => {
+                    tag.classList.remove('selected');
+                });
+                
+                // 添加选中状态到点击的标签
+                event.target.classList.add('selected');
+                selectedTag = event.target.getAttribute('data-tag');
+                
+                // 更新当前选中标签显示
+                currentTagName.textContent = selectedTag;
+                
+                // 保存选中标签
+                saveSelectedTag(selectedTag);
+                
+                // 启用开始按钮
+                timerBtn.disabled = false;
+            }
+        });
+        
+        // 添加新标签
+        addTagBtn.addEventListener('click', () => {
+            const newTag = newTagInput.value.trim();
+            if (newTag) {
+                // 检查标签是否已存在
+                const tags = loadTags();
+                if (!tags.includes(newTag)) {
+                    addTagElement(newTag);
+                    updateTags();
+                }
+                newTagInput.value = '';
+            }
+        });
+        
+        // 开始计时器
+        timerBtn.addEventListener('click', () => {
+            if (selectedTag) {
+                // 跳转到计时器页面
+                window.location.href = 'timer.html';
+            } else {
+                alert('请先选择一个学习标签！');
+            }
+        });
+        
+        // 设置ECharts
+        function initCharts() {
+            pieChart = echarts.init(document.getElementById('pieChart'));
+            barChart = echarts.init(document.getElementById('barChart'));
+            dayPercentChart = echarts.init(document.getElementById('dayPercentChart'));
+            
+            // 加载初始统计数据
+            updateCharts();
+            
+            // 监听窗口大小变化，重新调整图表大小
+            window.addEventListener('resize', () => {
+                pieChart.resize();
+                barChart.resize();
+                dayPercentChart.resize();
+            });
+        }
+        
+        // 更新图表
+        function updateCharts() {
+            const selectedDate = statsDate.value;
+            const records = getRecordsByDate(selectedDate);
+            
+            // 按标签分组
+            const tagStats = {};
+            let totalTime = 0;
+            
+            records.forEach(record => {
+                if (!tagStats[record.tag]) {
+                    tagStats[record.tag] = 0;
+                }
+                tagStats[record.tag] += record.duration;
+                totalTime += record.duration;
+            });
+            
+            // 饼图数据
+            const pieData = Object.keys(tagStats).map(tag => {
+                return {
+                    name: tag,
+                    value: Math.round(tagStats[tag] / 60) // 转换为分钟
+                };
+            });
+            
+            const pieOption = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c}分钟 ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 0,
+                    top: 'middle',
+                    left: 'auto',
+                    itemWidth: 10,
+                    itemHeight: 10,
+                    textStyle: {
+                        fontSize: 11
+                    },
+                    data: Object.keys(tagStats)
+                },
+                grid: {
+                    containLabel: true
+                },
+                series: [
+                    {
+                        name: '学习时间',
+                        type: 'pie',
+                        radius: ['40%', '60%'],
+                        center: ['35%', '50%'],
+                        avoidLabelOverlap: true,
+                        label: {
+                            show: false
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: '12',
+                                fontWeight: 'bold'
+                            }
+                        },
+                        labelLine: {
+                            show: false
+                        },
+                        data: pieData
+                    }
+                ]
+            };
+            
+            // 获取过去7天的数据
+            const pastWeekData = getPastWeekData();
+            
+            const barOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: '{b}: {c}分钟'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: pastWeekData.dates
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '学习时间(分钟)'
+                },
+                series: [{
+                    data: pastWeekData.minutes,
+                    type: 'bar',
+                    color: '#2196F3'
+                }]
+            };
+            
+            pieChart.setOption(pieOption);
+            barChart.setOption(barOption);
+            
+            // 更新今日时间占比图表，确保使用相同的数据集
+            updateTodayPercentChart(records, totalTime);
+        }
+        
+        // 更新今日时间占比图表 - 改为平滑的饼图
+        function updateTodayPercentChart(records) {
+            // 将一天的记录按时间顺序整理
+            const sortedRecords = [...records].sort((a, b) => {
+                const timeA = a.time.split(':');
+                const timeB = b.time.split(':');
+                return parseInt(timeA[0]) * 60 + parseInt(timeA[1]) - 
+                       (parseInt(timeB[0]) * 60 + parseInt(timeB[1]));
+            });
+            
+            // 创建饼图数据
+            const pieData = [];
+            let totalMinutesStudied = 0;
+            
+            // 每天总分钟数
+            const totalDayMinutes = 24 * 60;
+            
+            // 上一段结束时间（分钟）
+            let lastEndTimeInMinutes = 0;
+            
+            // 处理每条记录，添加学习时间段和非学习时间段
+            sortedRecords.forEach(record => {
+                // 解析开始时间（转换为分钟）
+                const timeParts = record.time.split(':');
+                const startTimeInMinutes = parseInt(timeParts[0]) * 60 + parseInt(timeParts[1]);
+                
+                // 如果开始时间大于上一段结束时间，添加一个非学习时间段
+                if (startTimeInMinutes > lastEndTimeInMinutes) {
+                    const nonStudyMinutes = startTimeInMinutes - lastEndTimeInMinutes;
+                    pieData.push({
+                        name: '未学习',
+                        value: nonStudyMinutes,
+                        itemStyle: {
+                            color: '#E0E0E0' // 灰色
+                        },
+                        startTime: formatMinutesToTime(lastEndTimeInMinutes),
+                        endTime: formatMinutesToTime(startTimeInMinutes),
+                        isStudyTime: false
+                    });
+                }
+                
+                // 计算学习结束时间（分钟）
+                const durationInMinutes = Math.floor(record.duration / 60);
+                const endTimeInMinutes = startTimeInMinutes + durationInMinutes;
+                
+                // 添加学习时间段
+                pieData.push({
+                    name: record.tag,
+                    value: durationInMinutes,
+                    itemStyle: {
+                        color: '#4CAF50' // 绿色
+                    },
+                    startTime: formatMinutesToTime(startTimeInMinutes),
+                    endTime: formatMinutesToTime(endTimeInMinutes),
+                    duration: durationInMinutes,
+                    isStudyTime: true
+                });
+                
+                // 更新上一段结束时间和总学习时间
+                lastEndTimeInMinutes = endTimeInMinutes;
+                totalMinutesStudied += durationInMinutes;
+            });
+            
+            // 如果最后一段结束时间小于一天总时间，添加最后一个非学习时间段
+            if (lastEndTimeInMinutes < totalDayMinutes) {
+                const remainingMinutes = totalDayMinutes - lastEndTimeInMinutes;
+                pieData.push({
+                    name: '未学习',
+                    value: remainingMinutes,
+                    itemStyle: {
+                        color: '#E0E0E0' // 灰色
+                    },
+                    startTime: formatMinutesToTime(lastEndTimeInMinutes),
+                    endTime: '24:00',
+                    isStudyTime: false
+                });
+            }
+            
+            // 如果没有记录，显示完整的24小时未学习
+            if (pieData.length === 0) {
+                pieData.push({
+                    name: '未学习',
+                    value: totalDayMinutes,
+                    itemStyle: {
+                        color: '#E0E0E0' // 灰色
+                    },
+                    startTime: '00:00',
+                    endTime: '24:00',
+                    isStudyTime: false
+                });
+            }
+            
+            const todayPercentOption = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function(params) {
+                        if (params.data.isStudyTime) {
+                            return `${params.data.name}<br/>` +
+                                   `开始: ${params.data.startTime}<br/>` + 
+                                   `结束: ${params.data.endTime}<br/>` + 
+                                   `持续: ${params.data.duration}分钟`;
+                        } else {
+                            return `未学习时间<br/>` + 
+                                   `${params.data.startTime} - ${params.data.endTime}`;
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: '今日时间占比',
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        center: ['50%', '50%'],
+                        avoidLabelOverlap: true,
+                        startAngle: 90, // 0时刻从12点钟方向开始
+                        clockwise: true,
+                        itemStyle: {
+                            borderRadius: 0,
+                            borderWidth: 1,
+                            borderColor: '#fff'
+                        },
+                        label: {
+                            show: false
+                        },
+                        emphasis: {
+                            label: {
+                                show: false
+                            },
+                            scale: false
+                        },
+                        data: pieData
+                    }
+                ]
+            };
+            
+            dayPercentChart.setOption(todayPercentOption);
+            
+            // 更新今日总时间显示
+            const totalHours = Math.floor(totalMinutesStudied / 60);
+            const totalMins = totalMinutesStudied % 60;
+            
+            // 格式化显示，精确到分钟
+            let timeDisplay = "";
+            if (totalHours > 0) {
+                timeDisplay += `${totalHours}小时`;
+            }
+            if (totalMins > 0 || totalHours === 0) {
+                timeDisplay += `${totalMins}分钟`;
+            }
+            
+            document.getElementById('todayTotalTime').textContent = timeDisplay;
+        }
+        
+        // 将分钟数格式化为时间字符串 (例如: 65 -> "01:05")
+        function formatMinutesToTime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+        }
+        
+        // 根据标签获取颜色
+        function getColorByTag(tag) {
+            // 为不同标签生成固定颜色（使用简单的哈希算法）
+            let hash = 0;
+            for (let i = 0; i < tag.length; i++) {
+                hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            
+            // 转换为HSL颜色，保持饱和度和亮度固定，只变化色相
+            const hue = Math.abs(hash % 360);
+            return `hsl(${hue}, 70%, 60%)`;
+        }
+        
+        // 更新今日记录列表
+        function updateRecordsList() {
+            const today = formatDate(new Date());
+            const records = getRecordsByDate(today);
+            
+            // 清除之前的记录（保留标题）
+            const heading = todayRecords.querySelector('h3');
+            todayRecords.innerHTML = '';
+            todayRecords.appendChild(heading);
+            
+            // 判断是否有记录
+            if (records.length === 0) {
+                const noRecords = document.createElement('div');
+                noRecords.className = 'no-records';
+                noRecords.textContent = '今天还没有学习记录';
+                todayRecords.appendChild(noRecords);
+                return;
+            }
+            
+            // 添加每条记录到列表
+            records.forEach(record => {
+                const recordItem = document.createElement('div');
+                recordItem.classList.add('record-item');
+                
+                // 创建记录信息部分（包含标签和时间）
+                const recordInfo = document.createElement('div');
+                recordInfo.classList.add('record-info');
+                
+                // 创建标签部分
+                const recordTag = document.createElement('span');
+                recordTag.classList.add('record-tag');
+                recordTag.textContent = record.tag;
+                
+                // 创建时间部分
+                const recordTime = document.createElement('span');
+                recordTime.classList.add('record-time');
+                recordTime.textContent = record.time;
+                
+                // 创建持续时间部分
+                const recordDuration = document.createElement('span');
+                recordDuration.classList.add('record-duration');
+                recordDuration.textContent = `${Math.round(record.duration / 60)} 分钟`;
+                
+                // 组装记录信息（标签和时间）
+                recordInfo.appendChild(recordTag);
+                recordInfo.appendChild(recordTime);
+                
+                // 将记录信息和持续时间添加到记录项
+                recordItem.appendChild(recordInfo);
+                recordItem.appendChild(recordDuration);
+                
+                todayRecords.appendChild(recordItem);
+            });
+        }
+        
+        // 导入记录数据
+        function importData(file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    Object.keys(data).forEach(date => {
+                        const records = data[date];
+                        const storageKey = `studyRecords_${date}`;
+                        localStorage.setItem(storageKey, JSON.stringify(records));
+                        updateRecordIndex(date);
+                    });
+                    
+                    alert('导入成功！');
+                    updateRecordsList();
+                    updateCharts();
+                } catch (error) {
+                    alert('导入失败，请确保文件格式正确');
+                    console.error(error);
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        // 检查是否有暂停的计时器
+        function checkPausedTimer() {
+            const timerPaused = localStorage.getItem('timer_paused');
+            const savedSeconds = localStorage.getItem('timer_currentSeconds');
+            
+            if (timerPaused === 'true' && savedSeconds) {
+                // 如果有暂停的计时器，更新按钮样式和文本
+                timerBtn.classList.add('continue');
+                
+                // 添加倒计时剩余时间的显示
+                const minutes = Math.floor(parseInt(savedSeconds) / 60);
+                const seconds = parseInt(savedSeconds) % 60;
+                timerBtn.textContent = `继续上次学习 (${minutes}:${seconds.toString().padStart(2, '0')} 剩余)`;
+                
+                // 即使没有选择标签也启用按钮
+                timerBtn.disabled = false;
+            } else {
+                // 如果没有暂停的计时器，恢复按钮样式和文本
+                timerBtn.classList.remove('continue');
+                timerBtn.textContent = '开始学习计时';
+                
+                // 根据是否选择了标签决定按钮是否可用
+                timerBtn.disabled = !selectedTag;
+            }
+        }
+        
+        // 获取上次学习的标签
+        function getLastRecord() {
+            const timerPaused = localStorage.getItem('timer_paused');
+            const savedTag = getSelectedTag();
+            
+            if (timerPaused === 'true' && savedTag) {
+                return { tag: savedTag };
+            }
+            return null;
+        }
+        
+        // 事件监听器
+        statsDate.addEventListener('change', updateCharts);
+        exportBtn.addEventListener('click', exportAllData);
+        importFile.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                importData(file);
+            }
+        });
+        
+        // 页面加载时初始化
+        window.addEventListener('load', () => {
+            loadTagsUI();
+            initCharts();
+            updateRecordsList();
+            
+            // 检查是否有暂停的计时器
+            checkPausedTimer();
+            
+            // 窗口大小变化时调整图表大小
+            window.addEventListener('resize', () => {
+                if (pieChart && barChart) {
+                    pieChart.resize();
+                    barChart.resize();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
