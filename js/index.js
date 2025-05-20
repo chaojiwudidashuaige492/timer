@@ -734,8 +734,59 @@ function addCalendarDay(day, classes, dayData, dateString) {
     if (dayData.minutes > 0) {
         const tooltip = document.createElement('div');
         tooltip.classList.add('day-tooltip');
-        tooltip.textContent = dayData.tooltip;
+        tooltip.innerHTML = dayData.tooltip;
         dayElement.appendChild(tooltip);
+        
+        // 添加事件监听，动态调整提示框位置
+        dayElement.addEventListener('mouseenter', () => {
+            // 获取日期元素位置信息
+            const dayRect = dayElement.getBoundingClientRect();
+            const tooltipRect = tooltip.getBoundingClientRect();
+            const calendarRect = calendarGrid.getBoundingClientRect();
+            
+            // 重置位置和类名
+            tooltip.style.top = '';
+            tooltip.style.left = '';
+            tooltip.style.bottom = '';
+            tooltip.style.right = '';
+            tooltip.classList.remove('tooltip-left', 'tooltip-right', 'tooltip-bottom');
+            
+            // 计算是否需要调整位置
+            const isNearRight = (dayRect.right + tooltipRect.width/2) > (calendarRect.right - 10);
+            const isNearLeft = (dayRect.left - tooltipRect.width/2) < (calendarRect.left + 10);
+            const isNearBottom = (window.innerHeight - dayRect.bottom) < 100; // 靠近底部
+            
+            if (isNearBottom) {
+                // 如果靠近底部，则显示在上方但位置更高
+                tooltip.style.top = '-85px';
+                tooltip.classList.add('tooltip-bottom');
+            }
+            
+            if (isNearRight) {
+                // 如果靠近右侧，则左对齐显示
+                tooltip.style.left = 'auto';
+                tooltip.style.right = '-10px';
+                tooltip.classList.add('tooltip-right');
+            } else if (isNearLeft) {
+                // 如果靠近左侧，则右对齐显示
+                tooltip.style.left = '-10px';
+                tooltip.style.right = 'auto';
+                tooltip.classList.add('tooltip-left');
+            }
+            
+            // 确保提示框完全可见
+            setTimeout(() => {
+                const updatedTooltipRect = tooltip.getBoundingClientRect();
+                if (updatedTooltipRect.right > window.innerWidth) {
+                    tooltip.style.left = 'auto';
+                    tooltip.style.right = '0';
+                }
+                if (updatedTooltipRect.left < 0) {
+                    tooltip.style.left = '0';
+                    tooltip.style.right = 'auto';
+                }
+            }, 0);
+        });
     }
     
     // 点击事件处理

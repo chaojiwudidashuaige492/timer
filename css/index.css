@@ -488,20 +488,64 @@ header {
     border-radius: 3px;
 }
 
-/* 日期提示 */
+/* 日期提示 - 基础样式 */
 .day-tooltip {
     position: absolute;
-    top: -40px;
+    top: -75px; /* 默认在上方 */
     left: 50%;
     transform: translateX(-50%);
     background-color: rgba(0, 0, 0, 0.8);
     color: white;
-    padding: 5px 10px;
+    padding: 8px 12px;
     border-radius: 5px;
     font-size: 0.8rem;
-    white-space: nowrap;
-    z-index: 100;
+    z-index: 1000;
     display: none;
+    white-space: normal;
+    width: max-content;
+    max-width: 200px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    pointer-events: none;
+}
+
+/* 默认的小三角形指示箭头（底部中央） */
+.day-tooltip:after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid rgba(0, 0, 0, 0.8);
+}
+
+/* 向左对齐的提示框 */
+.day-tooltip.tooltip-left {
+    transform: translateX(0);
+}
+
+.day-tooltip.tooltip-left:after {
+    left: 15px;
+    transform: translateX(0);
+}
+
+/* 向右对齐的提示框 */
+.day-tooltip.tooltip-right {
+    transform: translateX(0);
+}
+
+.day-tooltip.tooltip-right:after {
+    left: auto;
+    right: 15px;
+    transform: translateX(0);
+}
+
+/* 底部显示更高位置的提示框 */
+.day-tooltip.tooltip-bottom {
+    top: -90px;
 }
 
 .calendar-day:hover .day-tooltip {
