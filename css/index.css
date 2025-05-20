@@ -490,62 +490,41 @@ header {
 
 /* 日期提示 - 基础样式 */
 .day-tooltip {
-    position: absolute;
-    top: -75px; /* 默认在上方 */
-    left: 50%;
-    transform: translateX(-50%);
+    position: fixed; /* 改为fixed定位，相对于视口而非父元素 */
+    top: auto; /* 清除默认top值 */
+    left: auto; /* 清除默认left值 */
+    transform: none; /* 清除默认transform */
     background-color: rgba(0, 0, 0, 0.8);
     color: white;
     padding: 8px 12px;
     border-radius: 5px;
     font-size: 0.8rem;
-    z-index: 1000;
+    z-index: 9999; /* 增加z-index确保在最上层 */
     display: none;
     white-space: normal;
     width: max-content;
-    max-width: 200px;
+    max-width: 220px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     pointer-events: none;
 }
 
-/* 默认的小三角形指示箭头（底部中央） */
+/* 默认的小三角形指示箭头（底部中央） - 移除固定位置的箭头 */
 .day-tooltip:after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 6px solid rgba(0, 0, 0, 0.8);
+    content: none; /* 移除箭头，避免定位问题 */
 }
 
-/* 向左对齐的提示框 */
-.day-tooltip.tooltip-left {
-    transform: translateX(0);
+/* 清除特定方向的样式，因为我们会在JS中动态设置 */
+.day-tooltip.tooltip-left,
+.day-tooltip.tooltip-right,
+.day-tooltip.tooltip-bottom {
+    transform: none;
 }
 
-.day-tooltip.tooltip-left:after {
-    left: 15px;
-    transform: translateX(0);
-}
-
-/* 向右对齐的提示框 */
-.day-tooltip.tooltip-right {
-    transform: translateX(0);
-}
-
+.day-tooltip.tooltip-left:after,
 .day-tooltip.tooltip-right:after {
     left: auto;
-    right: 15px;
-    transform: translateX(0);
-}
-
-/* 底部显示更高位置的提示框 */
-.day-tooltip.tooltip-bottom {
-    top: -90px;
+    right: auto;
+    transform: none;
 }
 
 .calendar-day:hover .day-tooltip {

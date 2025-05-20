@@ -735,57 +735,55 @@ function addCalendarDay(day, classes, dayData, dateString) {
         const tooltip = document.createElement('div');
         tooltip.classList.add('day-tooltip');
         tooltip.innerHTML = dayData.tooltip;
-        dayElement.appendChild(tooltip);
+        document.body.appendChild(tooltip); // 将提示框添加到body，而非日期元素内
         
         // 添加事件监听，动态调整提示框位置
-        dayElement.addEventListener('mouseenter', () => {
-            // 获取日期元素位置信息
+        dayElement.addEventListener('mouseenter', (event) => {
+            // 获取鼠标位置和日期元素位置
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
             const dayRect = dayElement.getBoundingClientRect();
+            
+            // 计算提示框位置，默认在鼠标上方20px处
+            let tooltipX = mouseX;
+            let tooltipY = mouseY - 20;
+            
+            // 显示提示框并获取其尺寸
+            tooltip.style.display = 'block';
             const tooltipRect = tooltip.getBoundingClientRect();
-            const calendarRect = calendarGrid.getBoundingClientRect();
             
-            // 重置位置和类名
-            tooltip.style.top = '';
-            tooltip.style.left = '';
-            tooltip.style.bottom = '';
-            tooltip.style.right = '';
-            tooltip.classList.remove('tooltip-left', 'tooltip-right', 'tooltip-bottom');
-            
-            // 计算是否需要调整位置
-            const isNearRight = (dayRect.right + tooltipRect.width/2) > (calendarRect.right - 10);
-            const isNearLeft = (dayRect.left - tooltipRect.width/2) < (calendarRect.left + 10);
-            const isNearBottom = (window.innerHeight - dayRect.bottom) < 100; // 靠近底部
-            
-            if (isNearBottom) {
-                // 如果靠近底部，则显示在上方但位置更高
-                tooltip.style.top = '-85px';
-                tooltip.classList.add('tooltip-bottom');
+            // 确保提示框不会超出视口边界
+            // 调整X坐标以避免超出右边界
+            if (tooltipX + tooltipRect.width > window.innerWidth) {
+                tooltipX = window.innerWidth - tooltipRect.width - 10;
             }
             
-            if (isNearRight) {
-                // 如果靠近右侧，则左对齐显示
-                tooltip.style.left = 'auto';
-                tooltip.style.right = '-10px';
-                tooltip.classList.add('tooltip-right');
-            } else if (isNearLeft) {
-                // 如果靠近左侧，则右对齐显示
-                tooltip.style.left = '-10px';
-                tooltip.style.right = 'auto';
-                tooltip.classList.add('tooltip-left');
+            // 调整X坐标以避免超出左边界
+            if (tooltipX < 10) {
+                tooltipX = 10;
             }
             
-            // 确保提示框完全可见
-            setTimeout(() => {
-                const updatedTooltipRect = tooltip.getBoundingClientRect();
-                if (updatedTooltipRect.right > window.innerWidth) {
-                    tooltip.style.left = 'auto';
-                    tooltip.style.right = '0';
-                }
-                if (updatedTooltipRect.left < 0) {
-                    tooltip.style.left = '0';
-                    tooltip.style.right = 'auto';
-                }
-            }, 0);
+            // 如果鼠标位置靠近页面顶部，将提示框显示在日期下方而非上方
+            if (mouseY < tooltipRect.height + 40) {
+                tooltipY = dayRect.bottom + 10;
+            } else {
+                // 否则，将提示框显示在鼠标上方，确保完全可见
+                tooltipY = mouseY - tooltipRect.height - 10;
+            }
+            
+            // 应用计算好的位置
+            tooltip.style.left = `${tooltipX}px`;
+            tooltip.style.top = `${tooltipY}px`;
+        });
+        
+        // 鼠标离开时隐藏提示框
+        dayElement.addEventListener('mouseleave', () => {
+            tooltip.style.display = 'none';
+        });
+        
+        // 页面滚动时也隐藏提示框
+        window.addEventListener('scroll', () => {
+            tooltip.style.display = 'none';
         });
     }
     
