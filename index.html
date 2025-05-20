@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习计时管理系统</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="js/shared.js"></script>
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="main-panel">
+            <div class="start-panel">
+                <div class="tag-selection">
+                    <h3>选择学习标签</h3>
+                    <div class="tag-list" id="tagList">
+                        <!-- 标签将通过JavaScript动态加载 -->
+                    </div>
+                    
+                    <div class="tag-input">
+                        <input type="text" id="newTagInput" placeholder="输入新标签">
+                        <button id="addTagBtn">添加</button>
+                    </div>
+                </div>
+                
+                <div class="current-tag" id="currentTagDisplay">
+                    当前选中标签: <span id="currentTagName">无</span>
+                </div>
+                
+                <div class="button-container">
+                    <button class="timer-btn" id="timerBtn" disabled>开始学习计时</button>
+                </div>
+                
+                <div class="records-list" id="todayRecords">
+                    <h3>今日记录</h3>
+                    <!-- 记录会动态添加 -->
+                </div>
+                
+                <button class="export-btn" id="exportBtn">导出所有记录</button>
+                
+                <div class="import-container">
+                    <label class="import-label" for="importFile">导入记录</label>
+                    <input type="file" id="importFile" accept=".json">
+                </div>
+            </div>
+            
+            <div class="stats-panel">
+                <h2>学习统计</h2>
+                
+                <div class="stats-date">
+                    <input type="date" id="statsDate">
+                </div>
+                
+                <div class="charts-container">
+                    <div class="charts-row">
+                        <div class="chart-block">
+                            <h3>总学习时间分布</h3>
+                            <div class="pie-chart" id="pieChart"></div>
+                        </div>
+                        
+                        <div class="chart-block">
+                            <h3>今日时间占比 <span id="todayTotalTime" class="total-time-badge">0小时</span></h3>
+                            <div class="pie-chart" id="dayPercentChart"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3>每日学习时长</h3>
+                        <div class="bar-chart" id="barChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/index.js"></script>
+</body>
+</html>

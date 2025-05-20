@@ -1,0 +1,341 @@
+/* 学习计时管理系统样式表 */
+
+body {
+    font-family: 'Arial', sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f5f5f5;
+    min-height: 100vh; /* 改为最小高度 */
+    overflow-y: auto; /* 允许页面垂直滚动 */
+    display: flex;
+    flex-direction: column;
+}
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.app-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    flex: 1;
+    overflow-y: auto; /* 允许容器垂直滚动 */
+}
+.main-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    flex: 1;
+    overflow-y: auto; /* 允许主面板垂直滚动 */
+}
+.start-panel {
+    flex: 1;
+    min-width: 350px;
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto; /* 允许面板垂直滚动 */
+}
+.stats-panel {
+    flex: 2;
+    min-width: 400px;
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+    overflow: auto; /* 允许统计面板滚动 */
+}
+.timer-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 0;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    margin: 30px 0;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    transition: all 0.3s;
+    width: 100%;
+    max-width: 300px;
+}
+.timer-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+.timer-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+.timer-btn.continue {
+    background-color: #FF9800;
+}
+.button-container {
+    width: 100%;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+}
+.export-btn, .import-label {
+    width: 100%;
+    padding: 10px 0;
+    text-align: center;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 15px;
+    font-size: 1rem;
+    transition: all 0.2s;
+    border: none;
+}
+.export-btn {
+    background-color: #607D8B;
+    color: white;
+}
+.export-btn:hover, .import-label:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.import-container {
+    width: 100%;
+    margin-top: 10px;
+}
+.import-container input {
+    display: none;
+}
+.import-label {
+    background-color: #795548;
+    color: white;
+    display: block;
+}
+.tag-selection {
+    margin: 10px 0 20px 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.tag-selection h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #333;
+    font-weight: 600;
+}
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: center;
+    width: 100%;
+}
+.tag {
+    padding: 5px 15px;
+    background-color: #E0E0E0;
+    border-radius: 20px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+.tag.selected {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transform: scale(1.05);
+}
+.tag .delete-tag {
+    display: none;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #F44336;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    line-height: 18px;
+    text-align: center;
+    cursor: pointer;
+}
+.tag:hover .delete-tag {
+    display: block;
+}
+.current-tag {
+    font-size: 1.2rem;
+    margin: 15px 0;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border-radius: 5px;
+    font-weight: bold;
+    border-left: 4px solid #4CAF50;
+}
+.current-tag span {
+    color: #2196F3;
+}
+.stats-container {
+    margin-top: 20px;
+}
+.stats-date {
+    margin-bottom: 10px;
+    text-align: center;
+}
+.stats-date input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+.charts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.charts-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between;
+}
+.chart-block {
+    flex: 1;
+    min-width: 300px;
+}
+.pie-chart, .bar-chart {
+    height: 280px;
+}
+.records-list {
+    margin-top: 20px;
+    height: 280px; /* 固定高度 */
+    overflow-y: auto; /* 允许记录滚动 */
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 15px;
+    background-color: #fafafa;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.05);
+}
+.records-list h3 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #4CAF50;
+    color: #333;
+    text-align: left;
+}
+.record-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    background-color: white;
+}
+.record-info {
+    display: flex;
+    align-items: center;
+    min-width: 0; /* 允许内容收缩 */
+    flex: 1;
+    margin-right: 15px; /* 与时长之间的间距 */
+}
+.record-tag {
+    background-color: #2196F3;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-right: 12px;
+    min-width: 60px;
+    text-align: center;
+    flex-shrink: 0; /* 防止标签缩小 */
+}
+.record-time {
+    color: #555;
+    font-size: 0.9rem;
+    border-left: 2px solid #FFC107;
+    padding-left: 8px;
+    font-weight: 500;
+    white-space: nowrap; /* 防止时间换行 */
+}
+.record-duration {
+    background-color: #e8f5e9;
+    color: #388E3C;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    min-width: 60px;
+    text-align: center;
+    flex-shrink: 0; /* 防止时长缩小 */
+}
+.no-records {
+    color: #9e9e9e;
+    text-align: center;
+    padding: 20px 0;
+    font-style: italic;
+    background-color: white;
+    border-radius: 5px;
+}
+.tag-input {
+    display: flex;
+    margin-top: 15px;
+    width: 100%;
+    max-width: 300px;
+}
+.tag-input input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 25px 0 0 25px;
+    font-size: 1rem;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+    outline: none;
+}
+.tag-input input:focus {
+    border-color: #2196F3;
+    box-shadow: inset 0 1px 5px rgba(33,150,243,0.2);
+}
+.tag-input button {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 0 25px 25px 0;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+.tag-input button:hover {
+    background-color: #1976D2;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.total-time-badge {
+    display: inline-block;
+    background-color: #4CAF50;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    margin-left: 10px;
+    font-weight: normal;
+}
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+}
