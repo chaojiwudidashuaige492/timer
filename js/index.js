@@ -650,18 +650,21 @@ function getDayData(dateString) {
     // 计算总学习时间（分钟）
     const totalMinutes = records.reduce((sum, record) => sum + Math.round(record.duration / 60), 0);
     
-    // 根据学习时间确定热力等级
+    // 计算小时数
+    const totalHours = totalMinutes / 60;
+    
+    // 根据学习时间确定热力等级（新的时间范围）
     let level = 0;
-    if (totalMinutes > 0 && totalMinutes < 30) {
-        level = 1;
-    } else if (totalMinutes >= 30 && totalMinutes < 60) {
-        level = 2;
-    } else if (totalMinutes >= 60 && totalMinutes < 90) {
-        level = 3;
-    } else if (totalMinutes >= 90 && totalMinutes < 120) {
-        level = 4;
-    } else if (totalMinutes >= 120) {
-        level = 5;
+    if (totalHours > 0 && totalHours < 3) {
+        level = 1; // <3小时
+    } else if (totalHours >= 3 && totalHours < 4.5) {
+        level = 2; // 3-4.5小时
+    } else if (totalHours >= 4.5 && totalHours < 6) {
+        level = 3; // 4.5-6小时
+    } else if (totalHours >= 6 && totalHours < 8) {
+        level = 4; // 6-8小时
+    } else if (totalHours >= 8) {
+        level = 5; // >8小时
     }
     
     // 格式化时间显示
@@ -676,10 +679,36 @@ function getDayData(dateString) {
         timeDisplay += `${mins}分钟`;
     }
     
+    // 添加标签信息到提示
+    const tagStats = {};
+    records.forEach(record => {
+        if (!tagStats[record.tag]) {
+            tagStats[record.tag] = 0;
+        }
+        tagStats[record.tag] += Math.round(record.duration / 60);
+    });
+    
+    let tagInfo = '<br>学习内容:<br>';
+    Object.keys(tagStats).forEach(tag => {
+        const tagMinutes = tagStats[tag];
+        const tagHours = Math.floor(tagMinutes / 60);
+        const tagMins = tagMinutes % 60;
+        
+        let tagTimeStr = '';
+        if (tagHours > 0) {
+            tagTimeStr += `${tagHours}小时`;
+        }
+        if (tagMins > 0 || tagHours === 0) {
+            tagTimeStr += `${tagMins}分钟`;
+        }
+        
+        tagInfo += `- ${tag}: ${tagTimeStr}<br>`;
+    });
+    
     return {
         level,
         minutes: totalMinutes,
-        tooltip: `学习时间: ${timeDisplay}`
+        tooltip: `总学习时间: ${timeDisplay}${tagInfo}`
     };
 }
 

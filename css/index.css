@@ -345,6 +345,9 @@ header {
     border-radius: 10px;
     padding: 15px;
     box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+    max-width: 600px; /* 限制最大宽度 */
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* 日历标题和导航 */
@@ -385,7 +388,7 @@ header {
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
+    gap: 6px; /* 减小间距 */
 }
 
 /* 星期标题 */
@@ -393,8 +396,8 @@ header {
     text-align: center;
     font-weight: 500;
     color: #666;
-    padding: 5px 0;
-    font-size: 0.9rem;
+    padding: 4px 0;
+    font-size: 0.85rem; /* 减小字体 */
 }
 
 /* 日期单元格 */
@@ -409,6 +412,7 @@ header {
     position: relative;
     transition: all 0.2s;
     background-color: #f9f9f9;
+    font-size: 0.85rem; /* 减小内容字体 */
 }
 
 .calendar-day:hover {
@@ -434,7 +438,7 @@ header {
     margin-bottom: 3px;
 }
 
-/* 热力图颜色等级 */
+/* 热力图颜色等级 - 修改对应的学习时间范围 */
 .heat-level-0 {
     background-color: #f9f9f9;
 }
@@ -459,14 +463,16 @@ header {
     background-color: #4CAF50;
 }
 
-/* 热力图图例 */
+/* 更新热力图图例描述 */
 .heatmap-legend {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center; /* 居中排列 */
+    flex-wrap: wrap; /* 允许换行 */
     align-items: center;
     margin-top: 10px;
     font-size: 0.85rem;
     color: #666;
+    gap: 8px; /* 添加间距 */
 }
 
 .legend-item {
