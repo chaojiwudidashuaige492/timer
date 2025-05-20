@@ -11,6 +11,8 @@ const currentTagName = document.getElementById('currentTagName');
 const exportBtn = document.getElementById('exportBtn');
 const importFile = document.getElementById('importFile');
 const timerBtn = document.getElementById('timerBtn');
+const toggleHeatmapBtn = document.getElementById('toggleHeatmap');
+const calendarHeatmap = document.getElementById('calendarHeatmap');
 
 // 日历热力图相关元素
 const calendarTitle = document.getElementById('calendarTitle');
@@ -835,6 +837,17 @@ nextMonthBtn.addEventListener('click', () => {
 currentMonthBtn.addEventListener('click', () => {
     currentDate = new Date();
     generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+});
+
+// 切换热力图显示
+toggleHeatmapBtn.addEventListener('click', () => {
+    if (calendarHeatmap.style.display === 'none' || calendarHeatmap.style.display === '') {
+        calendarHeatmap.style.display = 'block';
+        toggleHeatmapBtn.textContent = '隐藏热力图';
+    } else {
+        calendarHeatmap.style.display = 'none';
+        toggleHeatmapBtn.textContent = '显示热力图';
+    }
 });
 
 // 页面加载时初始化

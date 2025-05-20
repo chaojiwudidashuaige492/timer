@@ -531,6 +531,23 @@ header {
     display: block;
 }
 
+#calendarHeatmap {
+    transition: all 0.3s ease;
+}
+.toggle-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+.toggle-btn:hover {
+    background-color: #45a049;
+}
+
 @media (max-width: 768px) {
     .container {
         flex-direction: column;

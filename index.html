@@ -49,45 +49,49 @@
                 <h2>学习统计</h2>
                 
                 <!-- 替换简单日期选择器为日历热力图 -->
-                <div class="calendar-heatmap">
-                    <div class="calendar-header">
-                        <div class="calendar-title" id="calendarTitle">2025年5月</div>
-                        <div class="calendar-nav">
-                            <button id="prevMonth">&lt; 上个月</button>
-                            <button id="currentMonth">本月</button>
-                            <button id="nextMonth">下个月 &gt;</button>
-                        </div>
-                    </div>
+                <div class="calendar-heatmap-container">
+                    <button id="toggleHeatmap" class="toggle-btn">隐藏热力图</button>
                     
-                    <div class="calendar-grid" id="calendarGrid">
-                        <!-- 星期标题 -->
-                        <div class="weekday-header">日</div>
-                        <div class="weekday-header">一</div>
-                        <div class="weekday-header">二</div>
-                        <div class="weekday-header">三</div>
-                        <div class="weekday-header">四</div>
-                        <div class="weekday-header">五</div>
-                        <div class="weekday-header">六</div>
+                    <div class="calendar-heatmap" id="calendarHeatmap">
+                        <div class="calendar-header">
+                            <div class="calendar-title" id="calendarTitle">2025年5月</div>
+                            <div class="calendar-nav">
+                                <button id="prevMonth">&lt; 上个月</button>
+                                <button id="currentMonth">本月</button>
+                                <button id="nextMonth">下个月 &gt;</button>
+                            </div>
+                        </div>
                         
-                        <!-- 日历单元格将通过JavaScript动态生成 -->
-                    </div>
-                    
-                    <div class="heatmap-legend">
-                        <div class="legend-item">
-                            <div class="legend-color heat-level-0"></div>
-                            <span>0小时</span>
+                        <div class="calendar-grid" id="calendarGrid">
+                            <!-- 星期标题 -->
+                            <div class="weekday-header">日</div>
+                            <div class="weekday-header">一</div>
+                            <div class="weekday-header">二</div>
+                            <div class="weekday-header">三</div>
+                            <div class="weekday-header">四</div>
+                            <div class="weekday-header">五</div>
+                            <div class="weekday-header">六</div>
+                            
+                            <!-- 日历单元格将通过JavaScript动态生成 -->
                         </div>
-                        <div class="legend-item">
-                            <div class="legend-color heat-level-1"></div>
-                            <span>&lt;3小时</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color heat-level-3"></div>
-                            <span>3-6小时</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-color heat-level-5"></div>
-                            <span>&gt;6小时</span>
+                        
+                        <div class="heatmap-legend">
+                            <div class="legend-item">
+                                <div class="legend-color heat-level-0"></div>
+                                <span>0小时</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color heat-level-1"></div>
+                                <span>&lt;3小时</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color heat-level-3"></div>
+                                <span>3-6小时</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color heat-level-5"></div>
+                                <span>&gt;6小时</span>
+                            </div>
                         </div>
                     </div>
                 </div>
