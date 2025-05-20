@@ -12,11 +12,22 @@ const exportBtn = document.getElementById('exportBtn');
 const importFile = document.getElementById('importFile');
 const timerBtn = document.getElementById('timerBtn');
 
+// 日历热力图相关元素
+const calendarTitle = document.getElementById('calendarTitle');
+const calendarGrid = document.getElementById('calendarGrid');
+const prevMonthBtn = document.getElementById('prevMonth');
+const nextMonthBtn = document.getElementById('nextMonth');
+const currentMonthBtn = document.getElementById('currentMonth');
+
 // 变量
 let selectedTag = null;
 let pieChart = null;
 let barChart = null;
-let dayPercentChart = null; // 添加全局变量
+let dayPercentChart = null;
+
+// 日历相关变量
+let currentDate = new Date();
+let selectedDate = new Date(); // 当前选中的日期
 
 // 初始化日期选择器为今天
 const today = new Date();
@@ -557,6 +568,197 @@ importFile.addEventListener('change', (event) => {
     }
 });
 
+// 生成日历热力图
+function generateCalendar(year, month) {
+    // 清空日历网格（除了星期标题）
+    const weekdayHeaders = calendarGrid.querySelectorAll('.weekday-header');
+    calendarGrid.innerHTML = '';
+    
+    // 重新添加星期标题
+    weekdayHeaders.forEach(header => {
+        calendarGrid.appendChild(header);
+    });
+    
+    // 更新标题
+    calendarTitle.textContent = `${year}年${month + 1}月`;
+    
+    // 获取当月第一天是星期几
+    const firstDay = new Date(year, month, 1);
+    const firstDayIndex = firstDay.getDay();
+    
+    // 获取当月有多少天
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    // 获取上个月的最后几天
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    
+    // 计算需要显示多少格子（最多6行）
+    const totalCells = Math.ceil((firstDayIndex + daysInMonth) / 7) * 7;
+    
+    // 如果第一天不是星期日，填充上个月的最后几天
+    for (let i = 0; i < firstDayIndex; i++) {
+        const day = prevMonthLastDay - firstDayIndex + i + 1;
+        const prevMonth = month === 0 ? 11 : month - 1;
+        const prevYear = month === 0 ? year - 1 : year;
+        const dateString = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        const dayData = getDayData(dateString);
+        
+        addCalendarDay(day, 'inactive', dayData, dateString);
+    }
+    
+    // 填充当前月的天数
+    for (let i = 1; i <= daysInMonth; i++) {
+        const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        const dayData = getDayData(dateString);
+        
+        let classes = '';
+        
+        // 检查是否是今天
+        if (year === today.getFullYear() && month === today.getMonth() && i === today.getDate()) {
+            classes += ' today';
+        }
+        
+        // 检查是否是选中的日期
+        if (year === selectedDate.getFullYear() && month === selectedDate.getMonth() && i === selectedDate.getDate()) {
+            classes += ' selected';
+        }
+        
+        addCalendarDay(i, classes, dayData, dateString);
+    }
+    
+    // 如果有剩余格子，填充下个月的前几天
+    const remainingCells = totalCells - (firstDayIndex + daysInMonth);
+    for (let i = 1; i <= remainingCells; i++) {
+        const nextMonth = month === 11 ? 0 : month + 1;
+        const nextYear = month === 11 ? year + 1 : year;
+        const dateString = `${nextYear}-${String(nextMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        
+        const dayData = getDayData(dateString);
+        
+        addCalendarDay(i, 'inactive', dayData, dateString);
+    }
+}
+
+// 获取某天的学习数据
+function getDayData(dateString) {
+    const records = getRecordsByDate(dateString);
+    if (records.length === 0) {
+        return { level: 0, minutes: 0, tooltip: '无学习记录' };
+    }
+    
+    // 计算总学习时间（分钟）
+    const totalMinutes = records.reduce((sum, record) => sum + Math.round(record.duration / 60), 0);
+    
+    // 根据学习时间确定热力等级
+    let level = 0;
+    if (totalMinutes > 0 && totalMinutes < 30) {
+        level = 1;
+    } else if (totalMinutes >= 30 && totalMinutes < 60) {
+        level = 2;
+    } else if (totalMinutes >= 60 && totalMinutes < 90) {
+        level = 3;
+    } else if (totalMinutes >= 90 && totalMinutes < 120) {
+        level = 4;
+    } else if (totalMinutes >= 120) {
+        level = 5;
+    }
+    
+    // 格式化时间显示
+    let timeDisplay = '';
+    const hours = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+    
+    if (hours > 0) {
+        timeDisplay += `${hours}小时`;
+    }
+    if (mins > 0 || hours === 0) {
+        timeDisplay += `${mins}分钟`;
+    }
+    
+    return {
+        level,
+        minutes: totalMinutes,
+        tooltip: `学习时间: ${timeDisplay}`
+    };
+}
+
+// 添加日历单元格
+function addCalendarDay(day, classes, dayData, dateString) {
+    const dayElement = document.createElement('div');
+    dayElement.classList.add('calendar-day');
+    dayElement.classList.add(`heat-level-${dayData.level}`);
+    
+    if (classes) {
+        classes.split(' ').forEach(cls => {
+            if (cls) dayElement.classList.add(cls);
+        });
+    }
+    
+    // 添加日期数字
+    const dayNumber = document.createElement('div');
+    dayNumber.classList.add('day-number');
+    dayNumber.textContent = day;
+    dayElement.appendChild(dayNumber);
+    
+    // 添加提示
+    if (dayData.minutes > 0) {
+        const tooltip = document.createElement('div');
+        tooltip.classList.add('day-tooltip');
+        tooltip.textContent = dayData.tooltip;
+        dayElement.appendChild(tooltip);
+    }
+    
+    // 点击事件处理
+    dayElement.addEventListener('click', () => {
+        // 点击日期时更新选中状态
+        document.querySelectorAll('.calendar-day.selected').forEach(el => {
+            el.classList.remove('selected');
+        });
+        
+        if (!dayElement.classList.contains('inactive')) {
+            dayElement.classList.add('selected');
+            
+            // 解析日期字符串并更新选中日期
+            selectedDate = new Date(dateString);
+            
+            // 更新隐藏的日期输入框以兼容现有的updateCharts函数
+            statsDate.value = dateString;
+            
+            // 更新图表数据
+            updateCharts();
+        } else {
+            // 如果点击的是非当前月的日期，切换到对应月份
+            const newDate = new Date(dateString);
+            currentDate = newDate;
+            generateCalendar(newDate.getFullYear(), newDate.getMonth());
+            
+            // 设置为选中状态
+            selectedDate = newDate;
+            statsDate.value = dateString;
+            updateCharts();
+        }
+    });
+    
+    calendarGrid.appendChild(dayElement);
+}
+
+// 月份导航事件处理
+prevMonthBtn.addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+});
+
+nextMonthBtn.addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+});
+
+currentMonthBtn.addEventListener('click', () => {
+    currentDate = new Date();
+    generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+});
+
 // 页面加载时初始化
 window.addEventListener('load', () => {
     loadTagsUI();
@@ -565,6 +767,9 @@ window.addEventListener('load', () => {
     
     // 检查是否有暂停的计时器
     checkPausedTimer();
+    
+    // 初始化日历热力图
+    generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
     
     // 窗口大小变化时调整图表大小
     window.addEventListener('resize', () => {

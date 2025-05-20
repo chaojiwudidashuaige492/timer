@@ -334,6 +334,174 @@ header {
     margin-left: 10px;
     font-weight: normal;
 }
+
+/* 添加日历热力图相关样式 */
+
+/* 日历容器 */
+.calendar-heatmap {
+    width: 100%;
+    margin: 20px 0;
+    background-color: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+}
+
+/* 日历标题和导航 */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.calendar-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.calendar-nav {
+    display: flex;
+    gap: 10px;
+}
+
+.calendar-nav button {
+    background-color: #f5f5f5;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.calendar-nav button:hover {
+    background-color: #e0e0e0;
+}
+
+/* 日历表格 */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+/* 星期标题 */
+.weekday-header {
+    text-align: center;
+    font-weight: 500;
+    color: #666;
+    padding: 5px 0;
+    font-size: 0.9rem;
+}
+
+/* 日期单元格 */
+.calendar-day {
+    aspect-ratio: 1;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+    background-color: #f9f9f9;
+}
+
+.calendar-day:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.calendar-day.today {
+    border: 2px solid #2196F3;
+}
+
+.calendar-day.selected {
+    border: 2px solid #FF9800;
+}
+
+.calendar-day.inactive {
+    opacity: 0.5;
+}
+
+.day-number {
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-bottom: 3px;
+}
+
+/* 热力图颜色等级 */
+.heat-level-0 {
+    background-color: #f9f9f9;
+}
+
+.heat-level-1 {
+    background-color: #e6f7ea;
+}
+
+.heat-level-2 {
+    background-color: #c6e6d1;
+}
+
+.heat-level-3 {
+    background-color: #a4d6b4;
+}
+
+.heat-level-4 {
+    background-color: #7cc392;
+}
+
+.heat-level-5 {
+    background-color: #4CAF50;
+}
+
+/* 热力图图例 */
+.heatmap-legend {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-left: 15px;
+}
+
+.legend-color {
+    width: 15px;
+    height: 15px;
+    margin-right: 5px;
+    border-radius: 3px;
+}
+
+/* 日期提示 */
+.day-tooltip {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    z-index: 100;
+    display: none;
+}
+
+.calendar-day:hover .day-tooltip {
+    display: block;
+}
+
 @media (max-width: 768px) {
     .container {
         flex-direction: column;
