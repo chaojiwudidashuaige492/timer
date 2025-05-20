@@ -131,8 +131,10 @@ function startTimer() {
 
 // 安排下一次休息时间
 function scheduleNextRest() {
-    // 临时设置为5秒，用于测试声音播放
-    const restDelaySeconds = 5;
+    // 在3-5分钟之间随机选择休息间隔（以秒为精度）
+    const minSeconds = 3 * 60; // 3分钟
+    const maxSeconds = 5 * 60; // 5分钟
+    const restDelaySeconds = Math.floor(Math.random() * (maxSeconds - minSeconds + 1)) + minSeconds;
     const restDelay = restDelaySeconds * 1000; // 转换为毫秒
     
     nextRestTime = new Date().getTime() + restDelay;
@@ -144,7 +146,7 @@ function scheduleNextRest() {
         }
     }, restDelay - 2000);
     
-    console.log('已安排下一次休息时间，将在5秒后响起');
+    console.log(`已安排下一次休息时间，将在${Math.floor(restDelaySeconds / 60)}分${restDelaySeconds % 60}秒后响起`);
 }
 
 // 显示通知
