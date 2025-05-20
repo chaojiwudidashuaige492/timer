@@ -12,6 +12,7 @@ const stopBtn = document.getElementById('stopBtn');
 const notification = document.getElementById('notification');
 const restOverlay = document.getElementById('restOverlay');
 const restTimer = document.getElementById('restTimer');
+const backBtn = document.getElementById('backBtn'); // 添加返回按钮引用
 
 // 初始化 ECharts 圆环图
 const timerChart = echarts.init(document.getElementById('timerCircle'));
@@ -297,6 +298,27 @@ function completeTimer() {
 startBtn.addEventListener('click', startTimer);
 pauseBtn.addEventListener('click', pauseTimer);
 stopBtn.addEventListener('click', stopTimer);
+
+// 返回按钮处理函数 - 确保在返回时保存暂停状态
+backBtn.addEventListener('click', () => {
+    // 如果计时器正在运行且没有暂停，则保存当前状态
+    if (timer && !isPaused) {
+        localStorage.setItem('timer_paused', 'true');
+        localStorage.setItem('timer_currentSeconds', currentSeconds.toString());
+        localStorage.setItem('timer_elapsedBeforePause', (TOTAL_SECONDS - currentSeconds).toString());
+    }
+    
+    // 如果计时器已经处于暂停状态，确保暂停状态已被保存
+    if (timer && isPaused) {
+        // 确保状态已保存（即使已经保存过）
+        localStorage.setItem('timer_paused', 'true');
+        localStorage.setItem('timer_currentSeconds', currentSeconds.toString());
+        localStorage.setItem('timer_elapsedBeforePause', elapsedBeforePause.toString());
+    }
+
+    // 跳转回主页
+    window.location.href = 'index.html';
+});
 
 // 初始化
 window.addEventListener('load', () => {
