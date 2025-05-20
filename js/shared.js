@@ -128,7 +128,7 @@ const ALERT_SOUND_BASE64 = 'data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADT
 const BACKUP_SOUND_BASE64 = 'data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU9vb2//////f/9//3//f/9//3//f/9//3//f/9//3//f/9//3//fw==';
 
 /**
- * 增强版音频播放函数 - 提供多种备选方案
+ * 增强版音频播放函数 - 提供更舒缓的提示音
  * 返回Promise以支持异步操作，在声音播放成功或失败后解决
  */
 function playSound() {
@@ -136,39 +136,99 @@ function playSound() {
     // 创建一个标志，用于跟踪是否已经解决了Promise
     let isResolved = false;
     
-    // 使用Web Audio API创建声音（最现代和可靠的方法）
+    // 使用Web Audio API创建更舒缓的风铃声音效果
     try {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       
-      // 创建振荡器
-      const oscillator = audioContext.createOscillator();
-      oscillator.type = 'sine';  // 正弦波声音
-      oscillator.frequency.value = 800;  // 设置频率为800Hz
-      
       // 创建增益节点以控制音量
-      const gainNode = audioContext.createGain();
-      gainNode.gain.value = 0.2;  // 设置音量为0.2（较低音量）
+      const masterGain = audioContext.createGain();
+      masterGain.gain.value = 0.3; // 设置整体音量较低
+      masterGain.connect(audioContext.destination);
       
-      // 连接节点
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
+      // 创建多个振荡器来模拟风铃声
+      const frequencies = [523.25, 659.25, 783.99, 1046.50]; // 和谐的音符频率 (C5, E5, G5, C6)
       
-      // 开始播放
-      oscillator.start();
+      frequencies.forEach((freq, index) => {
+        // 创建振荡器
+        const oscillator = audioContext.createOscillator();
+        oscillator.type = 'sine'; // 正弦波声音
+        oscillator.frequency.value = freq;
+        
+        // 创建增益节点，控制淡入淡出效果
+        const gainNode = audioContext.createGain();
+        
+        // 起始音量为0
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        // 淡入 - 在200毫秒内音量线性增加
+        gainNode.gain.linearRampToValueAtTime(0.2 - index * 0.03, audioContext.currentTime + 0.2);
+        // 持续一段时间
+        gainNode.gain.setValueAtTime(0.2 - index * 0.03, audioContext.currentTime + 0.8);
+        // 淡出 - 缓慢降低音量
+        gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 1.5);
+        
+        // 连接节点
+        oscillator.connect(gainNode);
+        gainNode.connect(masterGain);
+        
+        // 开始播放，交错开始使声音更自然
+        setTimeout(() => {
+          oscillator.start();
+          // 1.5秒后停止播放
+          setTimeout(() => oscillator.stop(), 1500);
+        }, index * 100);
+      });
       
-      // 200毫秒后停止播放
+      // 所有声音播放完成后完成Promise
       setTimeout(() => {
-        oscillator.stop();
         if (!isResolved) {
           isResolved = true;
-          resolve('Web Audio API播放成功');
+          resolve('Web Audio API风铃音播放成功');
         }
-      }, 200);
+      }, 2000);
       
-      console.log("使用Web Audio API播放声音");
+      console.log("使用Web Audio API播放舒缓的风铃声");
       return;  // 如果成功，直接返回
     } catch (e) {
-      console.warn("Web Audio API播放失败，尝试使用Audio元素:", e);
+      console.warn("Web Audio API播放失败，尝试使用更简单的舒缓声音:", e);
+      
+      // 如果复杂的方法失败，尝试更简单的方式创建舒缓的声音
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // 创建振荡器 - 使用较低频率
+        const oscillator = audioContext.createOscillator();
+        oscillator.type = 'sine';  // 正弦波声音
+        oscillator.frequency.value = 440;  // 设置频率为440Hz (A4音符)
+        
+        // 创建增益节点以控制音量和淡入淡出
+        const gainNode = audioContext.createGain();
+        
+        // 设置淡入淡出
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime); 
+        gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.3);
+        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime + 0.7);
+        gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 1.2);
+        
+        // 连接节点
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // 开始播放
+        oscillator.start();
+        
+        // 1.2秒后停止播放
+        setTimeout(() => {
+          oscillator.stop();
+          if (!isResolved) {
+            isResolved = true;
+            resolve('简单舒缓音播放成功');
+          }
+        }, 1200);
+        
+        return; // 如果成功，直接返回
+      } catch (e) {
+        console.warn("简单舒缓音播放失败，尝试使用Audio元素:", e);
+      }
     }
     
     // 备选方案：使用HTML5 Audio元素
