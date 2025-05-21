@@ -525,5 +525,7 @@ window.dbHelpers = {
   getTimerState,
   exportAllData,
   importData,
-  getPastWeekData
+  getPastWeekData,
+  getSetting,
+  saveSetting
 };
