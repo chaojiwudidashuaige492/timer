@@ -634,18 +634,21 @@ function setupPCNotice() {
     
     if (!pcNotice || !closeNoticeBtn) return;
     
+    // 立即在DOM元素创建时隐藏通知元素，防止闪烁
+    pcNotice.style.display = 'none';
+    
     // 检查是否已经选择不再显示通知
     const dontShowAgain = localStorage.getItem('pcNoticeDontShowAgain') === 'true';
     
-    // 在DOM加载时就设置隐藏状态，防止闪烁
+    // 如果用户已选择不再提醒，保持隐藏状态
     if (dontShowAgain) {
-        // 如果用户已选择不再提醒，立即确保通知元素隐藏
-        pcNotice.style.display = 'none';
         return;
     }
     
-    // 启用通知显示（只有当确定要显示时）
-    pcNotice.style.display = 'flex';
+    // 在一个requestAnimationFrame中启用通知显示，确保DOM完全渲染后再显示
+    requestAnimationFrame(() => {
+        pcNotice.style.display = 'flex';
+    });
     
     // 点击关闭按钮
     closeNoticeBtn.addEventListener('click', function(e) {

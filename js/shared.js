@@ -75,7 +75,7 @@ const ALERT_SOUND_BASE64 = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTG
 const BACKUP_SOUND_BASE64 = 'data:audio/wav;base64,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8fHx7+/v7e3t6+vr6enp5+fn5eXl4+Pj4eHh39/f3d3d29vb2dnZ19fX1dXV09PT0dHRz8/Pzc3Ny8vLycnJx8fHxcXFw8PDwcHBv7+/vb29u7u7ubm5t7e3tbW1s7OzsbGxr6+vrKystLS0srKysLCwrq6urKysqqqqqKiopaWlpKSkpKSkpaWlp6enqampq6ursLCws7OztbW1t7e3urq6vLy8vr6+wcHBw8PDxcXFx8fHycnJy8vLzc3Nz8/P0dHR09PT1dXV19fX2dnZ29vb3d3d39/f4eHh4+Pj5eXl5+fn6enp6+vr7e3t7+/v8fHx8/Pz9vb2+Pj4+vr6/Pz8/v7+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD////////+/v79/f38/Pz7+/v6+vr5+fn4+Pj39/f29vb19fX09PTz8/Py8vLx8fHw8PDv7+/u7u7t7e3s7Ozr6+vq6urp6eno6Ojn5+fm5ubk5OTl5eXj4+Pi4uLh4eHg4ODe3t7f39/d3d3c3Nzb29va2trZ2dnY2NjW1tbX19fV1dTT09PS0tLR0dHQ0NDPz8/Ozs7Nzc3Ly8vMzMzKysnIyMjHx8fGxsbFxcXDw8PExMTCwsHAwMC/v7++vr69vb28vLy7u7u6urq5ubm4uLi3t7e2tra1tbW0tLSzs7OysrKxsbGwsLCvr6+urq6tra2srKyrq6uqqqqpqaminp6enJycmpqamJiYlpaWlJSUkpKSkJCQjo6OjIyMioqKiIiIhoaGhISEgoKCgICAf39/fX19e3t7eXl5d3d3dXV1c3NzcXFxb29vbW1ta2trZ2dnaWlpZWVlY2NjYWFhX19fXV1dW1tbWVlZV1dXVVVVU1NTUVFRTk5OTExMSEhIRkZGREREQkJCQEBAOjo6PDw8Nzc3NTU1MzMzLy8vLS0tKioqKCgoJiYmJCQkIiIiICAgHh4eHBwcGhoaGBgYFhYWFBQUEhISEBAQDg4ODAwMCgoKBgYGCAgIBAQEAgICAAAAAP7+/vz8/Pr6+vj4+Pb29vT09PLy8vDw8O7u7uzs7Orq6ujo6Obm5uTk5OLi4uDg4N7e3tzc3NjY2Nra2tbW1tTU1NLS0tDQ0M7Ozs7OzszMzMzMzMzMzM7Ozs7Ozs7OztDQ0NLS0tTU1NbW1tjY2Nra2tzc3N7e3uDg4OLi4uTk5Obm5ujo6Orq6uzs7O7u7vDw8PLy8vT09Pb29vj4+Pr6+v///////////////wAA/v7+/Pz8+vr6+Pj49vb28/Pz8fHx7+/v7e3t6+vr6enp5+fn5eXl4+Pj4eHh39/f3d3d29vb2dnZ19fX1dXV09PT0dHRz8/Pzc3Ny8vLycnJx8fHxcXFw8PDwcHBv7+/vb29u7u7ubm5t7e3tbW1s7OzsbGxr6+vrKystLS0srKysLCwrq6urKysqqqqqKiopaWlpKSkpKSkpaWlp6enqampq6ursLCws7OztbW1t7e3urq6vLy8vr6+wcHBw8PDxcXFx8fHycnJy8vLzc3Nz8/P0dHR09PT1dXV19fX2dnZ29vb3d3d39/f4eHh4+Pj5eXl5+fn6enp6+vr7e3t7+/v8fHx8/Pz9vb2+Pj4+vr6/Pz8/v7+';
 
 /**
- * 极简版音频播放函数 - 专为解决GitHub Pages和浏览器限制问题
+ * 舒缓风铃声音频播放函数 - 专为提供舒缓的学习提示音
  * 返回Promise以支持异步操作，在声音播放成功或失败后解决
  */
 function playSound() {
@@ -83,37 +83,123 @@ function playSound() {
     // 创建一个标志，用于跟踪是否已经解决了Promise
     let isResolved = false;
     
-    // 确保Promise在1秒内被解决
+    // 确保Promise在2秒内被解决（风铃声需要更长的播放时间）
     setTimeout(() => {
       if (!isResolved) {
         isResolved = true;
         resolve(true); // 即使没有播放声音，也返回成功，避免错误提示
       }
-    }, 1000);
+    }, 2000);
     
-    // 尝试最简单的音频播放方式
+    // 尝试播放风铃声
     try {
-      // 检查是否有AudioContext API
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (AudioContext) {
-        try {
+      // 首先尝试播放主风铃声
+      const chime = new Audio(ALERT_SOUND_BASE64);
+      chime.volume = 0.5; // 适中的音量
+      
+      const playPromise = chime.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            if (!isResolved) {
+              // 在声音播放完成后解决Promise
+              chime.onended = () => {
+                if (!isResolved) {
+                  isResolved = true;
+                  resolve(true);
+                }
+              };
+              
+              // 如果声音没有触发onended事件，我们也确保在合理时间内解决Promise
+              setTimeout(() => {
+                if (!isResolved) {
+                  isResolved = true;
+                  resolve(true);
+                }
+              }, 1500); // 风铃声大约持续1-2秒
+            }
+          })
+          .catch(e => {
+            console.log("主风铃声播放失败，尝试备用声音:", e);
+            // 如果主声音失败，尝试备用声音
+            try {
+              const backupSound = new Audio(BACKUP_SOUND_BASE64);
+              backupSound.volume = 0.3;
+              
+              const backupPlayPromise = backupSound.play();
+              if (backupPlayPromise !== undefined) {
+                backupPlayPromise
+                  .then(() => {
+                    if (!isResolved) {
+                      isResolved = true;
+                      resolve(true);
+                    }
+                  })
+                  .catch(e => {
+                    console.log("备用声音也失败，尝试AudioContext:", e);
+                    tryAudioContext();
+                  });
+              } else {
+                if (!isResolved) {
+                  isResolved = true;
+                  resolve(true);
+                }
+              }
+            } catch (err) {
+              console.log("备用音频播放失败，尝试AudioContext:", err);
+              tryAudioContext();
+            }
+          });
+      } else {
+        // 如果play()没有返回promise (老浏览器)，尝试AudioContext
+        tryAudioContext();
+      }
+    } catch (e) {
+      console.log("Audio元素方法失败，尝试AudioContext:", e);
+      tryAudioContext();
+    }
+    
+    // 如果其他方法都失败，尝试使用AudioContext创建简单的音调
+    function tryAudioContext() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
           const audioCtx = new AudioContext();
-          const oscillator = audioCtx.createOscillator();
+          // 创建一个柔和的风铃模拟声音
+          
+          // 主音调
+          const oscillator1 = audioCtx.createOscillator();
+          oscillator1.type = 'sine';
+          oscillator1.frequency.value = 700; // 主频率
+          
+          // 和声
+          const oscillator2 = audioCtx.createOscillator();
+          oscillator2.type = 'sine';
+          oscillator2.frequency.value = 840; // 和声频率
+          
+          // 音量控制
           const gainNode = audioCtx.createGain();
+          gainNode.gain.value = 0.2; // 较低的音量
           
-          oscillator.type = 'sine';
-          oscillator.frequency.value = 800; // 清脆的频率
-          gainNode.gain.value = 0.3; // 适中的音量
-          
-          oscillator.connect(gainNode);
+          // 连接节点
+          oscillator1.connect(gainNode);
+          oscillator2.connect(gainNode);
           gainNode.connect(audioCtx.destination);
           
-          oscillator.start();
+          // 设置淡入淡出效果
+          gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+          gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.1);
+          gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.5);
           
-          // 0.2秒后停止
+          // 开始播放
+          oscillator1.start();
+          oscillator2.start();
+          
+          // 1.5秒后停止
           setTimeout(() => {
             try {
-              oscillator.stop();
+              oscillator1.stop();
+              oscillator2.stop();
             } catch (e) {
               // 忽略停止时的错误
             }
@@ -122,56 +208,21 @@ function playSound() {
               isResolved = true;
               resolve(true);
             }
-          }, 200);
-          
-          return; // 如果使用AudioContext成功，就不尝试其他方法
-        } catch (e) {
-          console.log("AudioContext方法失败，尝试Audio元素:", e);
-        }
-      }
-      
-      // 如果AudioContext不可用或失败，尝试使用Audio元素
-      try {
-        const beep = new Audio(BACKUP_SOUND_BASE64);
-        beep.volume = 0.2; // 较低的音量
-        
-        const playPromise = beep.play();
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              if (!isResolved) {
-                isResolved = true;
-                resolve(true);
-              }
-            })
-            .catch(e => {
-              // 播放失败，但静默处理
-              console.log("音频播放失败，静默处理:", e);
-              if (!isResolved) {
-                isResolved = true;
-                resolve(true);
-              }
-            });
+          }, 1500);
         } else {
-          // 如果play()没有返回promise (老浏览器)
+          // 如果AudioContext不可用，解决Promise
           if (!isResolved) {
             isResolved = true;
             resolve(true);
           }
         }
-      } catch (err) {
-        console.log("备用音频播放失败:", err);
+      } catch (e) {
+        // 所有音频方法都失败，但仍标记为成功
+        console.log("所有音频方法都失败:", e);
         if (!isResolved) {
           isResolved = true;
           resolve(true);
         }
-      }
-    } catch (e) {
-      // 所有音频方法都失败，但仍标记为成功
-      console.log("所有音频方法都失败:", e);
-      if (!isResolved) {
-        isResolved = true;
-        resolve(true);
       }
     }
   });
