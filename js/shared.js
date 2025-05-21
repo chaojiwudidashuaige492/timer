@@ -1,4 +1,4 @@
-// 共享存储函数
+// 共享函数
 // ===============================
 
 // 格式化日期
@@ -16,109 +16,56 @@ function formatTime(seconds) {
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
 
+// ===============================
+// 数据访问函数 - 现在使用 IndexedDB
+// 这些函数是 IndexedDB.js 中对应函数的代理
+// ===============================
+
+// 为了保持代码的兼容性，我们保留相同的函数签名，但内部实现调用 IndexedDB 函数
+
 // 获取特定日期的记录
-function getRecordsByDate(date) {
-    const storageKey = `studyRecords_${date}`;
-    return JSON.parse(localStorage.getItem(storageKey)) || [];
+async function getRecordsByDate(date) {
+    return await window.dbHelpers.getRecordsByDate(date);
 }
 
-// 将学习记录保存到localStorage
-function saveRecord(tag, duration) {
-    const date = formatDate(new Date());
-    const time = new Date().toTimeString().slice(0, 5);
-    
-    // 获取当天的记录
-    const storageKey = `studyRecords_${date}`;
-    let todayRecords = JSON.parse(localStorage.getItem(storageKey)) || [];
-    
-    // 添加新纪录
-    todayRecords.push({
-        tag: tag,
-        duration: duration,
-        time: time
-    });
-    
-    // 保存回localStorage
-    localStorage.setItem(storageKey, JSON.stringify(todayRecords));
-    
-    // 更新记录索引
-    updateRecordIndex(date);
-}
-
-// 更新记录索引
-function updateRecordIndex(date) {
-    let recordDates = JSON.parse(localStorage.getItem('studyRecordDates')) || [];
-    if (!recordDates.includes(date)) {
-        recordDates.push(date);
-        localStorage.setItem('studyRecordDates', JSON.stringify(recordDates));
-    }
+// 保存学习记录
+async function saveRecord(tag, duration) {
+    return await window.dbHelpers.saveRecord(tag, duration);
 }
 
 // 获取记录的所有日期
-function getAllRecordDates() {
-    return JSON.parse(localStorage.getItem('studyRecordDates')) || [];
+async function getAllRecordDates() {
+    return await window.dbHelpers.getAllRecordDates();
 }
 
-// 从localStorage加载标签
-function loadTags() {
-    return JSON.parse(localStorage.getItem('studyTags')) || [
-        "Java", "操作系统", "数据结构", "算法"
-    ];
+// 加载标签
+async function loadTags() {
+    return await window.dbHelpers.loadTags();
 }
 
-// 保存标签到localStorage
-function saveTags(tags) {
-    localStorage.setItem('studyTags', JSON.stringify(tags));
+// 保存标签
+async function saveTags(tags) {
+    return await window.dbHelpers.saveTags(tags);
 }
 
 // 保存当前选中的标签
-function saveSelectedTag(tag) {
-    localStorage.setItem('currentStudyTag', tag);
+async function saveSelectedTag(tag) {
+    return await window.dbHelpers.saveSelectedTag(tag);
 }
 
 // 获取当前选中的标签
-function getSelectedTag() {
-    return localStorage.getItem('currentStudyTag');
+async function getSelectedTag() {
+    return await window.dbHelpers.getSelectedTag();
 }
 
 // 导出所有记录数据
-function exportAllData() {
-    const allDates = getAllRecordDates();
-    let allData = {};
-    
-    allDates.forEach(date => {
-        allData[date] = getRecordsByDate(date);
-    });
-    
-    const dataStr = JSON.stringify(allData);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
-    const exportFileDefaultName = 'study-records.json';
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
+async function exportAllData() {
+    return await window.dbHelpers.exportAllData();
 }
 
 // 获取过去7天的数据
-function getPastWeekData() {
-    const dates = [];
-    const minutes = [];
-    
-    for (let i = 6; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        const dateString = formatDate(date);
-        
-        dates.push(dateString.slice(5)); // 只显示月和日
-        
-        const records = getRecordsByDate(dateString);
-        const totalMinutes = records.reduce((sum, record) => sum + record.duration, 0) / 60;
-        minutes.push(Math.round(totalMinutes));
-    }
-    
-    return { dates, minutes };
+async function getPastWeekData() {
+    return await window.dbHelpers.getPastWeekData();
 }
 
 // 使用简单可靠的提示音 - 这是一个有效的短MP3数据

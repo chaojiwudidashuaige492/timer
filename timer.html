@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>timer🕰</title>
     <link rel="icon" href="images/favicon.ico" type="image/x-icon">
-    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
     <script src="js/shared.js"></script>
+    <script src="js/indexedDB.js"></script>
     <link rel="stylesheet" href="css/timer.css">
 </head>
-<body>
-    <button class="back-btn" id="backBtn">返回</button>
+<body>    <button class="back-btn" id="backBtn" title="返回主页 (B键)">返回</button>
+    <button class="sound-toggle-btn" id="soundToggleBtn" title="切换声音 (S键)"><span class="icon">🔊</span></button>
     
     <div class="container">
         <div class="timer-panel">
@@ -26,23 +26,22 @@
                 <div id="timerStatus" class="timer-status">准备开始学习</div>
                 <div id="restCountdown" class="rest-countdown">距离下次休息还有: <span id="nextRestTime">00:00</span></div>
             </div>
-            
-            <div class="controls">
-                <button id="startBtn" class="start-btn">开始</button>
-                <button id="pauseBtn" class="pause-btn" disabled>暂停</button>
-                <button id="stopBtn" class="stop-btn" disabled>结束</button>
+              <div class="controls">
+                <button id="startBtn" class="start-btn" title="开始/继续计时 (空格键)">开始</button>
+                <button id="pauseBtn" class="pause-btn" disabled title="暂停计时 (空格键)">暂停</button>
+                <button id="stopBtn" class="stop-btn" disabled title="结束计时 (ESC键)">结束</button>
             </div>
         </div>
     </div>
     
     <div class="notification" id="notification">
         休息提醒即将到来...
-    </div>
-    
-    <div class="rest-overlay" id="restOverlay">
+    </div>      <div class="rest-overlay" id="restOverlay">
         <h2>休息时间!</h2>
-        <div class="rest-timer" id="restTimer">10</div>
+        <div class="rest-timer" id="restTimer">00:10</div>
         <p>请短暂休息眼睛，活动一下身体</p>
+        <p class="rest-note">计时结束后将自动恢复学习</p>
+        <button id="skipRestBtn" class="skip-rest-btn">立即继续学习</button>
     </div>
     
     <script src="js/timer.js"></script>

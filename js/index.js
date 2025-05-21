@@ -36,12 +36,12 @@ const today = new Date();
 statsDate.valueAsDate = today;
 
 // 加载标签
-function loadTagsUI() {
+async function loadTagsUI() {
     // 清空标签列表
     tagList.innerHTML = '';
     
     // 加载标签
-    const tags = loadTags();
+    const tags = await loadTags();
     
     // 创建标签元素
     tags.forEach(tag => {
@@ -49,7 +49,7 @@ function loadTagsUI() {
     });
     
     // 恢复选中状态
-    const savedTag = getSelectedTag();
+    const savedTag = await getSelectedTag();
     if (savedTag) {
         selectedTag = savedTag;
         currentTagName.textContent = savedTag;
@@ -77,38 +77,38 @@ function addTagElement(tag) {
     const deleteBtn = document.createElement('span');
     deleteBtn.classList.add('delete-tag');
     deleteBtn.textContent = '×';
-    deleteBtn.onclick = (e) => {
+    deleteBtn.onclick = async (e) => {
         e.stopPropagation();
         
         // 如果正在删除选中的标签，清除选中状态
         if (selectedTag === tag) {
             selectedTag = null;
             currentTagName.textContent = '无';
-            saveSelectedTag('');
+            await saveSelectedTag('');
             timerBtn.disabled = true;
         }
         
         tagElement.remove();
         
-        // 更新localStorage
-        updateTags();
+        // 更新标签
+        await updateTags();
     };
     
     tagElement.appendChild(deleteBtn);
     tagList.appendChild(tagElement);
 }
 
-// 更新标签到localStorage
-function updateTags() {
+// 更新标签到IndexedDB
+async function updateTags() {
     const tags = [];
     document.querySelectorAll('.tag').forEach(tagElement => {
         tags.push(tagElement.getAttribute('data-tag'));
     });
-    saveTags(tags);
+    await saveTags(tags);
 }
 
 // 标签选择处理
-tagList.addEventListener('click', (event) => {
+tagList.addEventListener('click', async (event) => {
     if (event.target.classList.contains('tag')) {
         // 移除所有标签的选中状态
         document.querySelectorAll('.tag').forEach(tag => {
@@ -123,7 +123,7 @@ tagList.addEventListener('click', (event) => {
         currentTagName.textContent = selectedTag;
         
         // 保存选中标签
-        saveSelectedTag(selectedTag);
+        await saveSelectedTag(selectedTag);
         
         // 启用开始按钮
         timerBtn.disabled = false;
@@ -131,14 +131,14 @@ tagList.addEventListener('click', (event) => {
 });
 
 // 添加新标签
-addTagBtn.addEventListener('click', () => {
+addTagBtn.addEventListener('click', async () => {
     const newTag = newTagInput.value.trim();
     if (newTag) {
         // 检查标签是否已存在
-        const tags = loadTags();
+        const tags = await loadTags();
         if (!tags.includes(newTag)) {
             addTagElement(newTag);
-            updateTags();
+            await updateTags();
         }
         newTagInput.value = '';
     }
@@ -155,13 +155,13 @@ timerBtn.addEventListener('click', () => {
 });
 
 // 设置ECharts
-function initCharts() {
+async function initCharts() {
     pieChart = echarts.init(document.getElementById('pieChart'));
     barChart = echarts.init(document.getElementById('barChart'));
     dayPercentChart = echarts.init(document.getElementById('dayPercentChart'));
     
     // 加载初始统计数据
-    updateCharts();
+    await updateCharts();
     
     // 监听窗口大小变化，重新调整图表大小
     window.addEventListener('resize', () => {
@@ -172,9 +172,9 @@ function initCharts() {
 }
 
 // 更新图表
-function updateCharts() {
+async function updateCharts() {
     const selectedDate = statsDate.value;
-    const records = getRecordsByDate(selectedDate);
+    const records = await getRecordsByDate(selectedDate);
     
     // 按标签分组
     const tagStats = {};
@@ -242,7 +242,7 @@ function updateCharts() {
     };
     
     // 获取过去7天的数据
-    const pastWeekData = getPastWeekData();
+    const pastWeekData = await getPastWeekData();
     
     const barOption = {
         tooltip: {
@@ -445,9 +445,9 @@ function getColorByTag(tag) {
 }
 
 // 更新今日记录列表
-function updateRecordsList() {
+async function updateRecordsList() {
     const today = formatDate(new Date());
-    const records = getRecordsByDate(today);
+    const records = await getRecordsByDate(today);
     
     // 清除之前的记录（保留标题）
     const heading = todayRecords.querySelector('h3');
@@ -500,21 +500,23 @@ function updateRecordsList() {
 }
 
 // 导入记录数据
-function importData(file) {
+async function importData(file) {
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
         try {
             const data = JSON.parse(event.target.result);
-            Object.keys(data).forEach(date => {
-                const records = data[date];
-                const storageKey = `studyRecords_${date}`;
-                localStorage.setItem(storageKey, JSON.stringify(records));
-                updateRecordIndex(date);
-            });
+            
+            // 使用IndexedDB的importData函数导入数据
+            await window.dbHelpers.importData(data);
             
             alert('导入成功！');
-            updateRecordsList();
-            updateCharts();
+            
+            // 刷新UI
+            await updateRecordsList();
+            await updateCharts();
+            
+            // 刷新热力图
+            generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
         } catch (error) {
             alert('导入失败，请确保文件格式正确');
             console.error(error);
@@ -524,17 +526,16 @@ function importData(file) {
 }
 
 // 检查是否有暂停的计时器
-function checkPausedTimer() {
-    const timerPaused = localStorage.getItem('timer_paused');
-    const savedSeconds = localStorage.getItem('timer_currentSeconds');
+async function checkPausedTimer() {
+    const timerState = await window.dbHelpers.getTimerState();
     
-    if (timerPaused === 'true' && savedSeconds) {
+    if (timerState.paused && timerState.seconds) {
         // 如果有暂停的计时器，更新按钮样式和文本
         timerBtn.classList.add('continue');
         
         // 添加倒计时剩余时间的显示
-        const minutes = Math.floor(parseInt(savedSeconds) / 60);
-        const seconds = parseInt(savedSeconds) % 60;
+        const minutes = Math.floor(timerState.seconds / 60);
+        const seconds = timerState.seconds % 60;
         timerBtn.textContent = `继续上次学习 (${minutes}:${seconds.toString().padStart(2, '0')} 剩余)`;
         
         // 即使没有选择标签也启用按钮
@@ -550,11 +551,11 @@ function checkPausedTimer() {
 }
 
 // 获取上次学习的标签
-function getLastRecord() {
-    const timerPaused = localStorage.getItem('timer_paused');
-    const savedTag = getSelectedTag();
+async function getLastRecord() {
+    const timerState = await window.dbHelpers.getTimerState();
+    const savedTag = await getSelectedTag();
     
-    if (timerPaused === 'true' && savedTag) {
+    if (timerState.paused && savedTag) {
         return { tag: savedTag };
     }
     return null;
@@ -562,7 +563,7 @@ function getLastRecord() {
 
 // 事件监听器
 statsDate.addEventListener('change', updateCharts);
-exportBtn.addEventListener('click', exportAllData);
+exportBtn.addEventListener('click', () => window.dbHelpers.exportAllData());
 importFile.addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -571,7 +572,7 @@ importFile.addEventListener('change', (event) => {
 });
 
 // 生成日历热力图
-function generateCalendar(year, month) {
+async function generateCalendar(year, month) {
     // 清空日历网格（除了星期标题）
     const weekdayHeaders = calendarGrid.querySelectorAll('.weekday-header');
     calendarGrid.innerHTML = '';
@@ -604,7 +605,7 @@ function generateCalendar(year, month) {
         const prevYear = month === 0 ? year - 1 : year;
         const dateString = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         
-        const dayData = getDayData(dateString);
+        const dayData = await getDayData(dateString);
         
         addCalendarDay(day, 'inactive', dayData, dateString);
     }
@@ -612,7 +613,7 @@ function generateCalendar(year, month) {
     // 填充当前月的天数
     for (let i = 1; i <= daysInMonth; i++) {
         const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-        const dayData = getDayData(dateString);
+        const dayData = await getDayData(dateString);
         
         let classes = '';
         
@@ -636,15 +637,15 @@ function generateCalendar(year, month) {
         const nextYear = month === 11 ? year + 1 : year;
         const dateString = `${nextYear}-${String(nextMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
         
-        const dayData = getDayData(dateString);
+        const dayData = await getDayData(dateString);
         
         addCalendarDay(i, 'inactive', dayData, dateString);
     }
 }
 
 // 获取某天的学习数据
-function getDayData(dateString) {
-    const records = getRecordsByDate(dateString);
+async function getDayData(dateString) {
+    const records = await getRecordsByDate(dateString);
     if (records.length === 0) {
         return { level: 0, minutes: 0, tooltip: '无学习记录' };
     }
@@ -790,7 +791,7 @@ function addCalendarDay(day, classes, dayData, dateString) {
     }
     
     // 点击事件处理
-    dayElement.addEventListener('click', () => {
+    dayElement.addEventListener('click', async () => {
         // 点击日期时更新选中状态
         document.querySelectorAll('.calendar-day.selected').forEach(el => {
             el.classList.remove('selected');
@@ -806,17 +807,17 @@ function addCalendarDay(day, classes, dayData, dateString) {
             statsDate.value = dateString;
             
             // 更新图表数据
-            updateCharts();
+            await updateCharts();
         } else {
             // 如果点击的是非当前月的日期，切换到对应月份
             const newDate = new Date(dateString);
             currentDate = newDate;
-            generateCalendar(newDate.getFullYear(), newDate.getMonth());
+            await generateCalendar(newDate.getFullYear(), newDate.getMonth());
             
             // 设置为选中状态
             selectedDate = newDate;
             statsDate.value = dateString;
-            updateCharts();
+            await updateCharts();
         }
     });
     
@@ -824,19 +825,19 @@ function addCalendarDay(day, classes, dayData, dateString) {
 }
 
 // 月份导航事件处理
-prevMonthBtn.addEventListener('click', () => {
+prevMonthBtn.addEventListener('click', async () => {
     currentDate.setMonth(currentDate.getMonth() - 1);
-    generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    await generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
 });
 
-nextMonthBtn.addEventListener('click', () => {
+nextMonthBtn.addEventListener('click', async () => {
     currentDate.setMonth(currentDate.getMonth() + 1);
-    generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    await generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
 });
 
-currentMonthBtn.addEventListener('click', () => {
+currentMonthBtn.addEventListener('click', async () => {
     currentDate = new Date();
-    generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    await generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
 });
 
 // 切换热力图显示
@@ -851,16 +852,16 @@ toggleHeatmapBtn.addEventListener('click', () => {
 });
 
 // 页面加载时初始化
-window.addEventListener('load', () => {
-    loadTagsUI();
-    initCharts();
-    updateRecordsList();
+window.addEventListener('load', async () => {
+    await loadTagsUI();
+    await initCharts();
+    await updateRecordsList();
     
     // 检查是否有暂停的计时器
-    checkPausedTimer();
+    await checkPausedTimer();
     
     // 初始化日历热力图
-    generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    await generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
     
     // 窗口大小变化时调整图表大小
     window.addEventListener('resize', () => {
