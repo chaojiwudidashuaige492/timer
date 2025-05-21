@@ -42,7 +42,29 @@
         <p>请短暂休息眼睛，活动一下身体</p>
         <p class="rest-note">计时结束后将自动恢复学习</p>
         <button id="skipRestBtn" class="skip-rest-btn">立即继续学习</button>
+    </div>    <!-- 添加PC后台运行提示区域 -->
+<div class="pc-notice" id="pcNotice" style="display:none;">
+    <div class="notice-header">
+        <span class="notice-icon">🔔</span>
+        <span class="notice-text">重要提示：PC浏览器可后台计时</span>
     </div>
+    <div class="notice-content">
+        <p>让Chrome浏览器即使在后台也能继续计时:</p>
+        <ol>
+            <li>打开浏览器的<strong>设置</strong> ⚙️</li>
+            <li>在设置中搜索<strong>"保持活跃"</strong>或<strong>"后台运行"</strong></li>
+            <li>找到<strong>"保持特定网站在后台始终活跃"</strong>选项</li>
+            <li>将本网站添加到该列表中</li>
+        </ol>
+        <p class="notice-footer">设置后，即使最小化或切换标签页，计时器也能正常工作！</p>
+        <div class="notice-actions">
+            <label class="dont-show-again">
+                <input type="checkbox" id="dontShowAgainCheckbox"> 不再提醒
+            </label>
+            <button id="closeNoticeBtn" class="close-notice-btn">我已了解</button>
+        </div>
+    </div>
+</div>
     
     <script src="js/timer.js"></script>
 </body>

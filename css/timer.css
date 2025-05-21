@@ -261,6 +261,114 @@ button:disabled {
     z-index: 1000;
 }
 
+/* PC后台运行提示样式 */
+.pc-notice {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    border: 2px solid #1976D2;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    width: 400px;
+    max-width: 95%;
+    overflow: hidden;
+    display: none; /* 默认隐藏，只有在确定需要显示时才设置为flex */
+    flex-direction: column;
+}
+
+/* 标题栏 */
+.notice-header {
+    display: flex;
+    align-items: center;
+    background-color: #1976D2;
+    color: white;
+    padding: 10px 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.notice-icon {
+    font-size: 1.3rem;
+    margin-right: 10px;
+    color: #fff;
+}
+
+.notice-text {
+    font-weight: bold;
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+/* 内容区域 */
+.notice-content {
+    padding: 15px;
+    background-color: #f1f8ff;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.notice-content p {
+    margin: 8px 0;
+    font-weight: bold;
+    color: #333;
+}
+
+.notice-content ol {
+    margin: 15px 0;
+    padding-left: 25px;
+}
+
+.notice-content li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.notice-footer {
+    margin-top: 15px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.notice-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.dont-show-again {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #333;
+    padding-left: 5px;
+}
+
+.dont-show-again input {
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.close-notice-btn {
+    padding: 8px 20px;
+    background-color: #1976D2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+    margin-left: auto;
+}
+
+.close-notice-btn:hover {
+    background-color: #1565C0;
+}
+
 @media (max-width: 600px) {
     .timer-container {
         width: 250px;

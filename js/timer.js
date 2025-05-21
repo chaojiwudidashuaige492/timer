@@ -534,8 +534,23 @@ function toggleSound() {
     soundEnabled = !soundEnabled;
     updateSoundToggleButton();
     
-    // 保存声音设置到IndexedDB
-    window.dbHelpers.saveSetting('soundEnabled', soundEnabled);
+    // 保存声音设置
+    try {
+        // 尝试使用IndexedDB
+        if (window.dbHelpers && typeof window.dbHelpers.saveSetting === 'function') {
+            window.dbHelpers.saveSetting('soundEnabled', soundEnabled);
+        }
+        
+        // 同时使用localStorage作为备份
+        localStorage.setItem('soundEnabled', soundEnabled.toString());
+        
+        // 播放测试声音
+        if (soundEnabled) {
+            playSound().catch(err => console.log("测试声音失败:", err));
+        }
+    } catch (error) {
+        console.error("保存声音设置失败:", error);
+    }
     
     // 显示状态反馈
     const message = soundEnabled ? "声音已开启" : "声音已静音";
@@ -555,14 +570,25 @@ function updateSoundToggleButton() {
 // 加载声音设置
 async function loadSoundSettings() {
     try {
-        const savedSetting = await window.dbHelpers.getSetting('soundEnabled');
-        
-        // 如果有保存的设置，则使用它
-        if (savedSetting !== null) {
-            soundEnabled = savedSetting === 'true' || savedSetting === true;
+        // 检查window.dbHelpers是否存在以及是否包含getSetting方法
+        if (window.dbHelpers && typeof window.dbHelpers.getSetting === 'function') {
+            const savedSetting = await window.dbHelpers.getSetting('soundEnabled');
+            
+            // 如果有保存的设置，则使用它
+            if (savedSetting !== null) {
+                soundEnabled = savedSetting === 'true' || savedSetting === true;
+            }
+            
+            console.log(`加载声音设置: ${soundEnabled ? '已启用' : '已禁用'}`);
+        } else {
+            console.log("dbHelpers.getSetting方法不存在，使用默认设置");
+            // 直接使用localStorage作为备选
+            const localSetting = localStorage.getItem('soundEnabled');
+            if (localSetting !== null) {
+                soundEnabled = localSetting === 'true';
+            }
         }
         
-        console.log(`加载声音设置: ${soundEnabled ? '已启用' : '已禁用'}`);
         updateSoundToggleButton();
     } catch (error) {
         console.error("加载声音设置失败:", error);
@@ -572,13 +598,72 @@ async function loadSoundSettings() {
 
 // 显示键盘快捷键提示
 async function showKeyboardShortcutHint() {
-    const hasShownHint = await window.dbHelpers.getSetting('keyboardShortcutsHintShown');
+    try {
+        let hasShownHint = false;
+        
+        // 检查window.dbHelpers是否存在以及是否包含getSetting方法
+        if (window.dbHelpers && typeof window.dbHelpers.getSetting === 'function') {
+            hasShownHint = await window.dbHelpers.getSetting('keyboardShortcutsHintShown');
+        } else {
+            // 直接使用localStorage作为备选
+            hasShownHint = localStorage.getItem('keyboardShortcutsHintShown') === 'true';
+        }
+        
+        if (!hasShownHint) {
+            setTimeout(() => {
+                showNotification("提示", "键盘快捷键: 空格=开始/暂停, ESC=停止, S=声音切换, B=返回");
+                
+                // 保存提示已显示状态
+                if (window.dbHelpers && typeof window.dbHelpers.saveSetting === 'function') {
+                    window.dbHelpers.saveSetting('keyboardShortcutsHintShown', true);
+                } else {
+                    localStorage.setItem('keyboardShortcutsHintShown', 'true');
+                }
+            }, 2000);
+        }
+    } catch (error) {
+        console.error("显示键盘快捷键提示失败:", error);
+    }
+}
+
+// 处理PC后台运行提示
+function setupPCNotice() {
+    const pcNotice = document.getElementById('pcNotice');
+    const closeNoticeBtn = document.getElementById('closeNoticeBtn');
+    const dontShowAgainCheckbox = document.getElementById('dontShowAgainCheckbox');
     
-    if (!hasShownHint) {
-        setTimeout(() => {
-            showNotification("提示", "键盘快捷键: 空格=开始/暂停, ESC=停止, S=声音切换, B=返回");
-            window.dbHelpers.saveSetting('keyboardShortcutsHintShown', true);
-        }, 2000);
+    if (!pcNotice || !closeNoticeBtn) return;
+    
+    // 检查是否已经选择不再显示通知
+    const dontShowAgain = localStorage.getItem('pcNoticeDontShowAgain') === 'true';
+    
+    // 在DOM加载时就设置隐藏状态，防止闪烁
+    if (dontShowAgain) {
+        // 如果用户已选择不再提醒，立即确保通知元素隐藏
+        pcNotice.style.display = 'none';
+        return;
+    }
+    
+    // 启用通知显示（只有当确定要显示时）
+    pcNotice.style.display = 'flex';
+    
+    // 点击关闭按钮
+    closeNoticeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        pcNotice.style.display = 'none';
+        
+        // 如果勾选了"不再提醒"，则保存设置
+        if (dontShowAgainCheckbox && dontShowAgainCheckbox.checked) {
+            localStorage.setItem('pcNoticeDontShowAgain', 'true');
+        }
+    });
+    
+    // 处理复选框状态变化
+    if (dontShowAgainCheckbox) {
+        dontShowAgainCheckbox.addEventListener('change', function() {
+            // 可以在这里添加额外的逻辑，如果需要的话
+            console.log("不再提醒选项变更为:", this.checked);
+        });
     }
 }
 
@@ -651,16 +736,17 @@ window.addEventListener('load', async () => {
     // 初始化ECharts图表
     timerChart = echarts.init(document.getElementById('timerCircle'));
     console.log("ECharts初始化完成");
-    
-    // 初始化显示
+      // 初始化显示
     updateTimerDisplay();
       // 请求通知权限
     if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
         Notification.requestPermission();
     }
-    
-    // 显示键盘快捷键提示
+      // 显示键盘快捷键提示
     await showKeyboardShortcutHint();
+    
+    // 设置PC后台运行提示
+    setupPCNotice();
     
     // 防止页面关闭时计时器丢失
     window.addEventListener('beforeunload', (event) => {
