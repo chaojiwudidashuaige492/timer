@@ -12,38 +12,114 @@ const STORES = {
 // 打开数据库连接
 function openDatabase() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-    
-    request.onerror = (event) => {
-      console.error("数据库打开失败:", event.target.error);
-      reject("数据库打开失败");
-    };
-    
-    request.onsuccess = (event) => {
-      const db = event.target.result;
-      resolve(db);
-    };
-    
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result;
-      
-      // 创建记录仓库
-      if (!db.objectStoreNames.contains(STORES.RECORDS)) {
-        const recordsStore = db.createObjectStore(STORES.RECORDS, { keyPath: 'id', autoIncrement: true });
-        recordsStore.createIndex('date', 'date', { unique: false });
-        recordsStore.createIndex('tag', 'tag', { unique: false });
+    try {
+      // 检查IndexedDB是否可用
+      if (!window.indexedDB) {
+        console.error("您的浏览器不支持IndexedDB");
+        // 使用内存存储模式（会话期间有效）
+        if (!window._memoryDB) {
+          window._memoryDB = {
+            RECORDS: [],
+            TAGS: [],
+            SETTINGS: {}
+          };
+        }
+        resolve("memory");
+        return;
       }
       
-      // 创建标签仓库
-      if (!db.objectStoreNames.contains(STORES.TAGS)) {
-        const tagsStore = db.createObjectStore(STORES.TAGS, { keyPath: 'name' });
+      // 在GitHub Pages环境下，如果检测到运行在跨域iframe中，直接使用内存模式
+      // 这有助于避免某些浏览器扩展导致的IndexedDB问题
+      try {
+        if (window.location.href.includes('github.io') && window !== window.top) {
+          console.warn("检测到GitHub Pages环境中的iframe，使用内存模式");
+          if (!window._memoryDB) {
+            window._memoryDB = {
+              RECORDS: [],
+              TAGS: [],
+              SETTINGS: {}
+            };
+          }
+          resolve("memory");
+          return;
+        }
+      } catch (err) {
+        // 访问window.top可能会因为跨域安全限制而失败
+        // 忽略错误，继续使用IndexedDB
       }
+
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
       
-      // 创建设置仓库
-      if (!db.objectStoreNames.contains(STORES.SETTINGS)) {
-        const settingsStore = db.createObjectStore(STORES.SETTINGS, { keyPath: 'name' });
+      // 设置超时处理，避免浏览器插件阻塞
+      const timeoutId = setTimeout(() => {
+        console.warn("数据库打开操作超时，可能是由于浏览器扩展冲突");
+        // 使用内存模式作为备选
+        if (!window._memoryDB) {
+          window._memoryDB = {
+            RECORDS: [],
+            TAGS: [],
+            SETTINGS: {}
+          };
+        }
+        resolve("memory");
+      }, 1000); // 1秒超时，缩短超时时间避免运行时错误
+      
+      request.onerror = (event) => {
+        clearTimeout(timeoutId);
+        console.error("数据库打开失败:", event.target.error);
+        // 使用内存模式作为备选
+        if (!window._memoryDB) {
+          window._memoryDB = {
+            RECORDS: [],
+            TAGS: [],
+            SETTINGS: {}
+          };
+        }
+        resolve("memory");
+      };
+      
+      request.onsuccess = (event) => {
+        clearTimeout(timeoutId);
+        const db = event.target.result;
+        resolve(db);
+      };
+      
+      request.onupgradeneeded = (event) => {
+        try {
+          const db = event.target.result;
+          
+          // 创建记录仓库
+          if (!db.objectStoreNames.contains(STORES.RECORDS)) {
+            const recordsStore = db.createObjectStore(STORES.RECORDS, { keyPath: 'id', autoIncrement: true });
+            recordsStore.createIndex('date', 'date', { unique: false });
+            recordsStore.createIndex('tag', 'tag', { unique: false });
+          }
+          
+          // 创建标签仓库
+          if (!db.objectStoreNames.contains(STORES.TAGS)) {
+            const tagsStore = db.createObjectStore(STORES.TAGS, { keyPath: 'name' });
+          }
+          
+          // 创建设置仓库
+          if (!db.objectStoreNames.contains(STORES.SETTINGS)) {
+            const settingsStore = db.createObjectStore(STORES.SETTINGS, { keyPath: 'name' });
+          }
+        } catch (err) {
+          console.error("升级数据库时出错:", err);
+        }
+      };
+    } catch (err) {
+      console.error("启动数据库时出错:", err);
+      // 使用内存模式作为备选
+      if (!window._memoryDB) {
+        window._memoryDB = {
+          RECORDS: [],
+          TAGS: [],
+          SETTINGS: {}
+        };
       }
-    };
+      resolve("memory");
+    }
   });
 }
 
@@ -324,22 +400,63 @@ async function importData(data) {
 }
 
 // 保存选中的标签
-function saveSelectedTag(tag) {
-  return saveSetting('currentStudyTag', tag);
+async function saveSelectedTag(tag) {
+  try {
+    return await saveSetting('currentStudyTag', tag);
+  } catch (err) {
+    console.log("保存选中标签出错，使用内存存储:", err);
+    if (window._memoryDB) {
+      window._memoryDB.SETTINGS['currentStudyTag'] = tag;
+      return true;
+    }
+    return false;
+  }
 }
 
 // 获取选中的标签
-function getSelectedTag() {
-  return getSetting('currentStudyTag');
+async function getSelectedTag() {
+  try {
+    return await getSetting('currentStudyTag');
+  } catch (err) {
+    console.log("获取选中标签出错，尝试从内存获取:", err);
+    if (window._memoryDB && window._memoryDB.SETTINGS['currentStudyTag']) {
+      return window._memoryDB.SETTINGS['currentStudyTag'];
+    }
+    return null;
+  }
 }
 
 // 保存计时器状态
-function saveTimerState(paused, seconds, elapsedBeforePause = 0) {
-  return Promise.all([
-    saveSetting('timer_paused', paused),
-    saveSetting('timer_currentSeconds', seconds),
-    saveSetting('timer_elapsedBeforePause', elapsedBeforePause)
-  ]);
+async function saveTimerState(paused, seconds, elapsedBeforePause = 0) {
+  try {
+    // 使用Promise.allSettled确保即使某个操作失败，其他操作也能继续
+    const results = await Promise.allSettled([
+      saveSetting('timer_paused', paused),
+      saveSetting('timer_currentSeconds', seconds),
+      saveSetting('timer_elapsedBeforePause', elapsedBeforePause)
+    ]);
+    
+    // 检查是否所有操作都成功
+    const allSucceeded = results.every(result => result.status === 'fulfilled');
+    
+    // 如果有操作失败，使用内存存储作为备份
+    if (!allSucceeded && window._memoryDB) {
+      window._memoryDB.SETTINGS['timer_paused'] = paused;
+      window._memoryDB.SETTINGS['timer_currentSeconds'] = seconds;
+      window._memoryDB.SETTINGS['timer_elapsedBeforePause'] = elapsedBeforePause;
+    }
+    
+    return true;
+  } catch (err) {
+    console.log("保存计时器状态出错，使用内存存储:", err);
+    if (window._memoryDB) {
+      window._memoryDB.SETTINGS['timer_paused'] = paused;
+      window._memoryDB.SETTINGS['timer_currentSeconds'] = seconds;
+      window._memoryDB.SETTINGS['timer_elapsedBeforePause'] = elapsedBeforePause;
+      return true;
+    }
+    return false;
+  }
 }
 
 // 获取计时器状态
@@ -354,7 +471,23 @@ async function getTimerState() {
       elapsedBeforePause: Number(elapsedBeforePause) || 0
     };
   } catch (error) {
-    console.error("获取计时器状态失败:", error);
+    console.log("获取计时器状态失败，尝试从内存获取:", error);
+    
+    // 从内存模式中读取
+    if (window._memoryDB) {
+      const memPaused = window._memoryDB.SETTINGS['timer_paused'];
+      const memSeconds = window._memoryDB.SETTINGS['timer_currentSeconds'];
+      const memElapsed = window._memoryDB.SETTINGS['timer_elapsedBeforePause'];
+      
+      if (memPaused !== undefined) {
+        return {
+          paused: memPaused === 'true' || memPaused === true,
+          seconds: Number(memSeconds) || 0,
+          elapsedBeforePause: Number(memElapsed) || 0
+        };
+      }
+    }
+    
     return { paused: false, seconds: 0, elapsedBeforePause: 0 };
   }
 }

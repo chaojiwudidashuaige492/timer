@@ -1,5 +1,33 @@
 // timer.js - 学习计时器页面脚本
 
+// 处理GitHub Pages上的运行时错误
+(function() {
+  // 解决 "runtime.lastError: A listener indicated an asynchronous response..." 的错误
+  // 这通常由于Chrome扩展或页面过快关闭导致的未完成的Promise
+  window.addEventListener('beforeunload', function(event) {
+    // 尝试关闭所有潜在的异步操作
+    try {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+      
+      // 如果Notification API可用，取消任何可能的权限请求
+      if ('Notification' in window && Notification.permission === 'default') {
+        // 不请求通知权限，避免页面关闭时出现的问题
+      }
+      
+      // 清空其他可能的超时
+      const highestTimeoutId = setTimeout(() => {}, 0);
+      for (let i = 0; i < highestTimeoutId; i++) {
+        clearTimeout(i);
+      }
+    } catch (e) {
+      // 忽略任何错误
+    }
+  });
+})();
+
 // DOM 元素变量声明
 let timerText, timerStatus, restCountdown, nextRestTimeSpan, tagDisplay;
 let startBtn, pauseBtn, stopBtn, notification, restOverlay, restTimer, backBtn, soundToggleBtn;
@@ -354,40 +382,67 @@ async function stopTimer() {
 
 // 显示通知
 function showNotification(title, message) {
-    // 检查浏览器是否支持通知
-    if (!("Notification" in window)) {
-        alert(message);
-        return;
+    // 确保notification元素存在
+    if (!notification) {
+        console.log("Notification元素不存在，创建简单通知");
+        try {
+            notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.id = 'notification';
+            document.body.appendChild(notification);
+        } catch (err) {
+            console.log("无法创建通知元素:", err);
+        }
     }
-    
-    // 检查用户是否已授予通知权限
-    if (Notification.permission === "granted") {
-        // 创建并显示通知
-        new Notification(title, {
-            body: message,
-            icon: "/images/favicon.ico"
-        });
-        
-        // 同时显示屏幕上的通知
+
+    // 始终显示屏幕上的通知
+    try {
         notification.textContent = message;
         notification.classList.add('show');
         
         setTimeout(() => {
             notification.classList.remove('show');
         }, 5000);
-    } else if (Notification.permission !== "denied") {
-        // 请求权限
-        Notification.requestPermission().then(permission => {
-            if (permission === "granted") {
-                showNotification(title, message);
-            } else {
-                // 如果用户拒绝了通知权限，回退到alert
-                alert(message);
+    } catch (err) {
+        console.log("显示内部通知失败:", err);
+    }
+
+    // 检查浏览器是否支持通知API
+    if (!("Notification" in window)) {
+        console.log("浏览器不支持Notification API");
+        return;
+    }
+    
+    try {
+        // 检查用户是否已授予通知权限
+        if (Notification.permission === "granted") {
+            // 创建并显示通知
+            try {
+                const notification = new Notification(title, {
+                    body: message,
+                    icon: "./images/favicon.ico", // 相对路径，适用于GitHub Pages
+                    requireInteraction: false, // 不要求用户交互
+                    silent: false // 使用系统声音
+                });
+                
+                // 确保通知在5秒后关闭
+                setTimeout(() => {
+                    notification.close();
+                }, 5000);
+            } catch (err) {
+                console.log("创建系统通知失败:", err);
             }
-        });
-    } else {
-        // 用户拒绝了通知权限，使用alert
-        alert(message);
+        } else if (Notification.permission !== "denied") {
+            // 请求权限但不立即显示通知
+            try {
+                Notification.requestPermission();
+                // 不在权限请求后立即创建通知，避免未完成的Promise
+            } catch (err) {
+                console.log("请求通知权限失败:", err);
+            }
+        }
+    } catch (err) {
+        console.log("通知系统出错:", err);
     }
 }
 
