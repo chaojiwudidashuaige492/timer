@@ -79,6 +79,13 @@ async function loadSelectedTag() {
         return;
     }
     
+    // 检查是否有暂停的计时器，确保使用正确的标签
+    const timerState = await window.dbHelpers.getTimerState();
+    if (timerState.paused) {
+        // 如果有暂停的计时器，再次确认标签是正确的
+        console.log(`继续暂停的学习会话，使用标签: ${selectedTag}`);
+    }
+    
     // 显示标签
     tagDisplay.textContent = selectedTag;
 }

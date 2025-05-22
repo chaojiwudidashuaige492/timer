@@ -47,12 +47,46 @@ async function loadTagsUI() {
     tags.forEach(tag => {
         addTagElement(tag);
     });
-    
-    // 恢复选中状态
+      // 恢复选中状态
     const savedTag = await getSelectedTag();
-    if (savedTag) {
+      // 检查是否有暂停的计时器，如果有，总是使用暂停时的标签
+    const timerState = await window.dbHelpers.getTimerState();
+    if (timerState.paused && savedTag) {
         selectedTag = savedTag;
         currentTagName.textContent = savedTag;
+        
+        // 将对应的标签设置为视觉上的选中状态
+        document.querySelectorAll('.tag').forEach(tag => {
+            if (tag.getAttribute('data-tag') === savedTag) {
+                tag.classList.add('selected');
+            }
+        });
+        
+        // 显示通知，告知用户有暂停的学习会话
+        const notification = document.createElement('div');
+        notification.classList.add('paused-notification');
+        notification.textContent = `您有一个暂停的"${savedTag}"学习会话，请先完成或结束它。`;
+        notification.style.color = '#ff6b6b';
+        notification.style.marginBottom = '10px';
+        notification.style.fontWeight = 'bold';
+        
+        // 如果已存在通知，则不重复添加
+        if (!document.querySelector('.paused-notification')) {
+            currentTagDisplay.parentNode.insertBefore(notification, currentTagDisplay);
+        }
+        
+        // 启用开始按钮
+        timerBtn.disabled = false;
+    } else if (savedTag) {
+        selectedTag = savedTag;
+        currentTagName.textContent = savedTag;
+        
+        // 将对应的标签设置为视觉上的选中状态
+        document.querySelectorAll('.tag').forEach(tag => {
+            if (tag.getAttribute('data-tag') === savedTag) {
+                tag.classList.add('selected');
+            }
+        });
         
         // 找到对应标签元素并添加选中样式
         document.querySelectorAll('.tag').forEach(tagElement => {
@@ -110,6 +144,25 @@ async function updateTags() {
 // 标签选择处理
 tagList.addEventListener('click', async (event) => {
     if (event.target.classList.contains('tag')) {
+        // 检查是否有暂停的计时器
+        const timerState = await window.dbHelpers.getTimerState();
+        const savedTag = await getSelectedTag();
+        
+        if (timerState.paused && savedTag) {
+            // 如果有暂停的学习，不允许切换标签，显示提示
+            alert(`您有一个暂停的"${savedTag}"学习会话。请先完成或结束该学习会话，然后再选择新的标签。`);
+            
+            // 确保原有标签保持选中状态
+            document.querySelectorAll('.tag').forEach(tag => {
+                if (tag.getAttribute('data-tag') === savedTag) {
+                    tag.classList.add('selected');
+                } else {
+                    tag.classList.remove('selected');
+                }
+            });
+            return;
+        }
+        
         // 移除所有标签的选中状态
         document.querySelectorAll('.tag').forEach(tag => {
             tag.classList.remove('selected');
@@ -145,8 +198,18 @@ addTagBtn.addEventListener('click', async () => {
 });
 
 // 开始计时器
-timerBtn.addEventListener('click', () => {
+timerBtn.addEventListener('click', async () => {
     if (selectedTag) {
+        // 检查是否有暂停的计时器
+        const timerState = await window.dbHelpers.getTimerState();
+        const savedTag = await getSelectedTag();
+        
+        // 如果有暂停的计时器，但选择的标签与之前不同
+        if (timerState.paused && savedTag && savedTag !== selectedTag) {
+            alert(`您有一个暂停的"${savedTag}"学习会话。请先完成或结束该学习会话，然后再开始新的学习。`);
+            return;
+        }
+        
         // 跳转到计时器页面
         window.location.href = 'timer.html';
     } else {
