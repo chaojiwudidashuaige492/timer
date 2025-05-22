@@ -68,162 +68,175 @@ async function getPastWeekData() {
     return await window.dbHelpers.getPastWeekData();
 }
 
-// 舒缓的风铃声 - 优先使用这个声音
-const ALERT_SOUND_BASE64 = 'data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjEyLjEwMAAAAAAAAAAAAAAA//tAwAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAADAAAGhgBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVWqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqr///////////////////////////////////////////8AAAAATGF2YzU4LjE5AAAAAAAAAAAAAAAAJAZFAAAAAAAABobUrU2CAAAAAAD/+xDEAAAKZAF39BEABfxEr/8DAAENGWAL5MDhLjG1nGdPs1KrDDdt2MwKzcdjt/6sz5alwH///ezV/tY+1s6URAGAOY7Lp5UEqAKYAUwBgAAAUByAMgA44IjF1EJyfyt4xzKJfiN4qQCdldXSAwpsjqZIE2duM9XESe/WUMPttU9J+JMBOqWTBMVWPKiLT6CwE8fS4yLz6Chea0VPFLX//TWc9DnO0VDSY9Vt1akI07DBnv6LO1Omi7////v/nWT5HwpnHLT+sYyAABABgJAHiCEgcYKYNYBRgmg0mJYKWY8Z+J9UFfEsTCrJJAsCYOgGDGDwDAwxgKAcYBoChgrggGCYBkGO4CAYHeQ5j/lRGN+SqL3o5q/UKjP9RgN5aJmKuvS9KGb+tGCMUYBi9q1BhM8tra5MzExnV/9bnacSUpi6mCK5kFCN/////+e37///7///////1///v//4fjRkQAAAAUGAUAUCACAgMADBYwlMDTATAMwoMDcCMBAgYCIGZgJAimCKAGYEYCL/+yDEFgAHXMMhfKRgCQQJJPeGMAIxgUAoMAQAAwCwHTANADAwWmAgMMjElnZNSpjIziNxN4zQNktpTIhCdq2LCm0XM0RIpG5tqrMxIqk6NKLMPKM6Ndup3Q66EQGa0yYVGdah8ppSZJkPLLq1pQltcYs00KaZ3SppGaXqerTUnt5nelSupTS9Svg5ZdDIalbJdGDqXCXDJTWltwhkOhkqhDFQl8uiXSqZLJNLiGZKXVepcxuDABDAgCGBAABBgEAAQYBgAMmAYAEZgOAAsYCYAcGAcAABgEAA8YAwADGAOASBIAKGAwAP5gGAA0YBAASmAGAChgEgAqYAIAFGHEUD7JEM9UoTVyX1Kmm2pNmzEaNXb9s1bGnv9s0+9bG9LOhtET336wmhLp0mwpN+t0n36T6G63VaHeD73rYZ7dDo39aorep6Uta907UPvWtKValZR7QlLZJvUsr2lrVpY1Let2pbEt6W9e1jVoSmzr2pfek9LZE29AhDZcKAQEBAQFXXLx1Llyy5cuXLlksUWIQlwQh9F1JcEIcIQ4XLLhFFFiiiiixAAAAAA//tAxCUAE/UtXfmskAohhOr/PYABLLe1qrUFKtqlFbUqtVpaS2tpaAFoALUmYxiMRgKIxGIMAQMA38BB+Xw5q/CpDmrGpDmuNSHNQl8aqhQwVHAocUDZDmxShhQuKGFDggocKGKFxWsUVrCh0csd7FY72KkqRtJGkbbaaPJmjyZo8mkaSNJGk0jaTR5M0kbbaSpHk0h5NIeTSHk0h5NI22kjTbGm22222220kbSRpJG0UORCrEYqqFA4HA4HA4HA4HAFCMREREREREAAREREREREREREREREREREREQ43UmxwdTxwcHBwcHD/+xDEDAPLrIdb+ewACM2MZz89gAEBwcHBwcHBwcHBwcHBwcHCIiIiJxO+InGIiIiIREREQiIiIicTvEMxugYVDB4YPHhYyMYnE74icYiIiIREREQiIiIhERERERERERERERERExERERBtG00bRtG0bRpGkaRpG0bRtG0bRtG0bRtG0bRtG0aRpGjf4qqqqqqqqM5znOc5znOc5znAgQIAAAJcuXMrWLsUBAgQAAAACuXLly5cuXLly5vZIiIiIiIAIiIiIiIcdBwcHBwcHBwcHBwcHBwSIiIiJxO+InFYwMHhg8MHDg4ODg4ODg4ODg4ODg4ODhERERERERERCIiI/////iIiIiIiIiIiIiIiIiIiIiIiIiIx3fxERERERERg4ODhERERCIiIiInE74iiIiIiERERERERERERERERERF/+4qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqo=';
+// 使用简单可靠的提示音 - 这是一个有效的短MP3数据
+const ALERT_SOUND_BASE64 = 'data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tAwAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAADbgCA//////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//////////AAAA/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/7UMQAAAesTXRQRMAIrKnaj0CgBBAAmJqzOgIAlgDO3azgBAEABwB3d3cAd3d3AAAACAIAgCDoOP8QBAP/g+D4Pgg/8uDgIAgIf/BwEH//5CEPggCAIf//iDoJwiHwfBAEAQdBAEAwf//y4Pv/8H3/+XB//+D7///wfACBLLLL//tgxAaAca0NGnBGAACDLLLLLLLAAAAIERERERERERERERERERERERERERERERERERERERERERE=';
 
-// 备用声音 - 更轻柔的提示音
-const BACKUP_SOUND_BASE64 = 'data:audio/wav;base64,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8fHx7+/v7e3t6+vr6enp5+fn5eXl4+Pj4eHh39/f3d3d29vb2dnZ19fX1dXV09PT0dHRz8/Pzc3Ny8vLycnJx8fHxcXFw8PDwcHBv7+/vb29u7u7ubm5t7e3tbW1s7OzsbGxr6+vrKystLS0srKysLCwrq6urKysqqqqqKiopaWlpKSkpKSkpaWlp6enqampq6ursLCws7OztbW1t7e3urq6vLy8vr6+wcHBw8PDxcXFx8fHycnJy8vLzc3Nz8/P0dHR09PT1dXV19fX2dnZ29vb3d3d39/f4eHh4+Pj5eXl5+fn6enp6+vr7e3t7+/v8fHx8/Pz9vb2+Pj4+vr6/Pz8/v7+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD////////+/v79/f38/Pz7+/v6+vr5+fn4+Pj39/f29vb19fX09PTz8/Py8vLx8fHw8PDv7+/u7u7t7e3s7Ozr6+vq6urp6eno6Ojn5+fm5ubk5OTl5eXj4+Pi4uLh4eHg4ODe3t7f39/d3d3c3Nzb29va2trZ2dnY2NjW1tbX19fV1dTT09PS0tLR0dHQ0NDPz8/Ozs7Nzc3Ly8vMzMzKysnIyMjHx8fGxsbFxcXDw8PExMTCwsHAwMC/v7++vr69vb28vLy7u7u6urq5ubm4uLi3t7e2tra1tbW0tLSzs7OysrKxsbGwsLCvr6+urq6tra2srKyrq6uqqqqpqaminp6enJycmpqamJiYlpaWlJSUkpKSkJCQjo6OjIyMioqKiIiIhoaGhISEgoKCgICAf39/fX19e3t7eXl5d3d3dXV1c3NzcXFxb29vbW1ta2trZ2dnaWlpZWVlY2NjYWFhX19fXV1dW1tbWVlZV1dXVVVVU1NTUVFRTk5OTExMSEhIRkZGREREQkJCQEBAOjo6PDw8Nzc3NTU1MzMzLy8vLS0tKioqKCgoJiYmJCQkIiIiICAgHh4eHBwcGhoaGBgYFhYWFBQUEhISEBAQDg4ODAwMCgoKBgYGCAgIBAQEAgICAAAAAP7+/vz8/Pr6+vj4+Pb29vT09PLy8vDw8O7u7uzs7Orq6ujo6Obm5uTk5OLi4uDg4N7e3tzc3NjY2Nra2tbW1tTU1NLS0tDQ0M7Ozs7OzszMzMzMzMzMzM7Ozs7Ozs7OztDQ0NLS0tTU1NbW1tjY2Nra2tzc3N7e3uDg4OLi4uTk5Obm5ujo6Orq6uzs7O7u7vDw8PLy8vT09Pb29vj4+Pr6+v///////////////wAA/v7+/Pz8+vr6+Pj49vb28/Pz8fHx7+/v7e3t6+vr6enp5+fn5eXl4+Pj4eHh39/f3d3d29vb2dnZ19fX1dXV09PT0dHRz8/Pzc3Ny8vLycnJx8fHxcXFw8PDwcHBv7+/vb29u7u7ubm5t7e3tbW1s7OzsbGxr6+vrKystLS0srKysLCwrq6urKysqqqqqKiopaWlpKSkpKSkpaWlp6enqampq6ursLCws7OztbW1t7e3urq6vLy8vr6+wcHBw8PDxcXFx8fHycnJy8vLzc3Nz8/P0dHR09PT1dXV19fX2dnZ29vb3d3d39/f4eHh4+Pj5eXl5+fn6enp6+vr7e3t7+/v8fHx8/Pz9vb2+Pj4+vr6/Pz8/v7+';
+// 备用声音 - beep声
+const BACKUP_SOUND_BASE64 = 'data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU9vb2//////f/9//3//f/9//3//f/9//3//f/9//3//f/9//3//fw==';
 
 /**
- * 舒缓风铃声音频播放函数 - 专为提供舒缓的学习提示音
+ * 增强版音频播放函数 - 提供更舒缓的提示音
  * 返回Promise以支持异步操作，在声音播放成功或失败后解决
  */
 function playSound() {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     // 创建一个标志，用于跟踪是否已经解决了Promise
     let isResolved = false;
     
-    // 确保Promise在2秒内被解决（风铃声需要更长的播放时间）
-    setTimeout(() => {
-      if (!isResolved) {
-        isResolved = true;
-        resolve(true); // 即使没有播放声音，也返回成功，避免错误提示
-      }
-    }, 2000);
-    
-    // 尝试播放风铃声
+    // 使用Web Audio API创建更舒缓的风铃声音效果
     try {
-      // 首先尝试播放主风铃声
-      const chime = new Audio(ALERT_SOUND_BASE64);
-      chime.volume = 0.5; // 适中的音量
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       
-      const playPromise = chime.play();
-      if (playPromise !== undefined) {
-        playPromise
+      // 创建增益节点以控制音量
+      const masterGain = audioContext.createGain();
+      masterGain.gain.value = 0.3; // 设置整体音量较低
+      masterGain.connect(audioContext.destination);
+      
+      // 创建多个振荡器来模拟风铃声
+      const frequencies = [523.25, 659.25, 783.99, 1046.50]; // 和谐的音符频率 (C5, E5, G5, C6)
+      
+      frequencies.forEach((freq, index) => {
+        // 创建振荡器
+        const oscillator = audioContext.createOscillator();
+        oscillator.type = 'sine'; // 正弦波声音
+        oscillator.frequency.value = freq;
+        
+        // 创建增益节点，控制淡入淡出效果
+        const gainNode = audioContext.createGain();
+        
+        // 起始音量为0
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        // 淡入 - 在200毫秒内音量线性增加
+        gainNode.gain.linearRampToValueAtTime(0.2 - index * 0.03, audioContext.currentTime + 0.2);
+        // 持续一段时间
+        gainNode.gain.setValueAtTime(0.2 - index * 0.03, audioContext.currentTime + 0.8);
+        // 淡出 - 缓慢降低音量
+        gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 1.5);
+        
+        // 连接节点
+        oscillator.connect(gainNode);
+        gainNode.connect(masterGain);
+        
+        // 开始播放，交错开始使声音更自然
+        setTimeout(() => {
+          oscillator.start();
+          // 1.5秒后停止播放
+          setTimeout(() => oscillator.stop(), 1500);
+        }, index * 100);
+      });
+      
+      // 所有声音播放完成后完成Promise
+      setTimeout(() => {
+        if (!isResolved) {
+          isResolved = true;
+          resolve('Web Audio API风铃音播放成功');
+        }
+      }, 2000);
+      
+      console.log("使用Web Audio API播放舒缓的风铃声");
+      return;  // 如果成功，直接返回
+    } catch (e) {
+      console.warn("Web Audio API播放失败，尝试使用更简单的舒缓声音:", e);
+      
+      // 如果复杂的方法失败，尝试更简单的方式创建舒缓的声音
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // 创建振荡器 - 使用较低频率
+        const oscillator = audioContext.createOscillator();
+        oscillator.type = 'sine';  // 正弦波声音
+        oscillator.frequency.value = 440;  // 设置频率为440Hz (A4音符)
+        
+        // 创建增益节点以控制音量和淡入淡出
+        const gainNode = audioContext.createGain();
+        
+        // 设置淡入淡出
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime); 
+        gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.3);
+        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime + 0.7);
+        gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 1.2);
+        
+        // 连接节点
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // 开始播放
+        oscillator.start();
+        
+        // 1.2秒后停止播放
+        setTimeout(() => {
+          oscillator.stop();
+          if (!isResolved) {
+            isResolved = true;
+            resolve('简单舒缓音播放成功');
+          }
+        }, 1200);
+        
+        return; // 如果成功，直接返回
+      } catch (e) {
+        console.warn("简单舒缓音播放失败，尝试使用Audio元素:", e);
+      }
+    }
+    
+    // 备选方案：使用HTML5 Audio元素
+    try {
+      const sound = new Audio();
+      
+      // 设置事件监听器
+      sound.oncanplaythrough = function() {
+        sound.play()
           .then(() => {
             if (!isResolved) {
-              // 在声音播放完成后解决Promise
-              chime.onended = () => {
-                if (!isResolved) {
-                  isResolved = true;
-                  resolve(true);
-                }
-              };
-              
-              // 如果声音没有触发onended事件，我们也确保在合理时间内解决Promise
-              setTimeout(() => {
-                if (!isResolved) {
-                  isResolved = true;
-                  resolve(true);
-                }
-              }, 1500); // 风铃声大约持续1-2秒
+              isResolved = true;
+              resolve('HTML5 Audio播放成功');
             }
           })
           .catch(e => {
-            console.log("主风铃声播放失败，尝试备用声音:", e);
-            // 如果主声音失败，尝试备用声音
-            try {
-              const backupSound = new Audio(BACKUP_SOUND_BASE64);
-              backupSound.volume = 0.3;
-              
-              const backupPlayPromise = backupSound.play();
-              if (backupPlayPromise !== undefined) {
-                backupPlayPromise
-                  .then(() => {
-                    if (!isResolved) {
-                      isResolved = true;
-                      resolve(true);
-                    }
-                  })
-                  .catch(e => {
-                    console.log("备用声音也失败，尝试AudioContext:", e);
-                    tryAudioContext();
-                  });
-              } else {
-                if (!isResolved) {
-                  isResolved = true;
-                  resolve(true);
-                }
-              }
-            } catch (err) {
-              console.log("备用音频播放失败，尝试AudioContext:", err);
-              tryAudioContext();
-            }
+            console.warn("MP3播放失败，尝试备用WAV格式:", e);
+            sound.src = BACKUP_SOUND_BASE64;
+            
+            sound.oncanplaythrough = function() {
+              sound.play()
+                .then(() => {
+                  if (!isResolved) {
+                    isResolved = true;
+                    resolve('备用WAV播放成功');
+                  }
+                })
+                .catch(finalError => {
+                  if (!isResolved) {
+                    console.error("所有音频方法均失败:", finalError);
+                    isResolved = true;
+                    reject(finalError);
+                  }
+                });
+            };
           });
-      } else {
-        // 如果play()没有返回promise (老浏览器)，尝试AudioContext
-        tryAudioContext();
-      }
+      };
+      
+      sound.onerror = function(e) {
+        console.warn("加载音频失败:", e);
+        // 不立即拒绝，因为我们可能尝试其他方法
+      };
+      
+      // 设置音频源为MP3
+      sound.src = ALERT_SOUND_BASE64;
+      console.log("尝试使用HTML5 Audio播放MP3");
     } catch (e) {
-      console.log("Audio元素方法失败，尝试AudioContext:", e);
-      tryAudioContext();
+      console.error("所有音频播放方法均失败:", e);
+      if (!isResolved) {
+        isResolved = true;
+        reject(e);
+      }
     }
     
-    // 如果其他方法都失败，尝试使用AudioContext创建简单的音调
-    function tryAudioContext() {
-      try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (AudioContext) {
-          const audioCtx = new AudioContext();
-          // 创建一个柔和的风铃模拟声音
-          
-          // 主音调
-          const oscillator1 = audioCtx.createOscillator();
-          oscillator1.type = 'sine';
-          oscillator1.frequency.value = 700; // 主频率
-          
-          // 和声
-          const oscillator2 = audioCtx.createOscillator();
-          oscillator2.type = 'sine';
-          oscillator2.frequency.value = 840; // 和声频率
-          
-          // 音量控制
-          const gainNode = audioCtx.createGain();
-          gainNode.gain.value = 0.2; // 较低的音量
-          
-          // 连接节点
-          oscillator1.connect(gainNode);
-          oscillator2.connect(gainNode);
-          gainNode.connect(audioCtx.destination);
-          
-          // 设置淡入淡出效果
-          gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-          gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.1);
-          gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.5);
-          
-          // 开始播放
-          oscillator1.start();
-          oscillator2.start();
-          
-          // 1.5秒后停止
-          setTimeout(() => {
-            try {
-              oscillator1.stop();
-              oscillator2.stop();
-            } catch (e) {
-              // 忽略停止时的错误
-            }
-            
-            if (!isResolved) {
-              isResolved = true;
-              resolve(true);
-            }
-          }, 1500);
-        } else {
-          // 如果AudioContext不可用，解决Promise
-          if (!isResolved) {
-            isResolved = true;
-            resolve(true);
-          }
-        }
-      } catch (e) {
-        // 所有音频方法都失败，但仍标记为成功
-        console.log("所有音频方法都失败:", e);
-        if (!isResolved) {
-          isResolved = true;
-          resolve(true);
-        }
+    // 如果3秒后仍未播放声音，则视为失败
+    setTimeout(() => {
+      if (!isResolved) {
+        isResolved = true;
+        console.warn("音频播放超时");
+        reject(new Error("音频播放超时"));
       }
-    }
+    }, 3000);
   });
 }
